@@ -33,5 +33,5 @@ protobuf {
 
 dependencies {
     implementation deps.rxjava2.rxjava
-    compile 'com.google.protobuf:protobuf-java:3.4.0'
+    implementation 'com.google.protobuf:protobuf-java:3.4.0'
 }
