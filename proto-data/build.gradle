@@ -1,0 +1,37 @@
+apply from: rootProject.file('library.gradle')
+apply plugin: 'com.google.protobuf'
+android {
+
+    sourceSets {
+        main {
+            java {
+                srcDir 'src/main/java'
+            }
+            proto {
+                srcDir 'src/main/proto'
+            }
+        }
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.0.0'
+    }
+
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                remove java
+            }
+            task.builtins {
+                java { }
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation deps.rxjava2.rxjava
+    compile 'com.google.protobuf:protobuf-java:3.4.0'
+}
