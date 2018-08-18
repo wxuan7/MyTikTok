@@ -9,3 +9,4 @@
 .externalNativeBuild
 /.idea
 /待解决问题
+/*.local
