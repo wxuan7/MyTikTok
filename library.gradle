@@ -1,5 +1,7 @@
 apply plugin: 'com.android.library'
-
+rootProject.ext.invokerConfig = [
+        'fileName': 'META-INF/services/inject/invoker_info'
+]
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -9,6 +11,13 @@ android {
     }
     defaultConfig {
         minSdkVersion 15
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                includeCompileClasspath = true
+                arguments = [invokerConfig: rootProject.ext.invokerConfig['fileName']]
+            }
+        }
     }
 }
 

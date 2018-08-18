@@ -1,5 +1,8 @@
 apply plugin: 'com.android.application'
-
+apply plugin: 'invoker'
+rootProject.ext.invokerConfig = [
+        'fileName': 'META-INF/services/inject/invoker_info'
+]
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
@@ -12,7 +15,9 @@ android {
 
         javaCompileOptions {
             annotationProcessorOptions {
+                includeCompileClasspath = true
                 arguments += [providerInterfaceName      : 'com.example.whensunset.mytiktok.FetcherHelper',
+                              invokerConfig: rootProject.ext.invokerConfig['fileName'],
                               injectorInterfaceName      : 'com.example.whensunset.mytiktok.InjectorHelper']
             }
         }

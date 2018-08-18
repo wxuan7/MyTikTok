@@ -1,5 +1,5 @@
 syntax = "proto3";
-package com.example.proto_data;
+package com.whensunset.proto_data;
 
 option java_package = "com.example.proto_data";
 option java_multiple_files = true;
