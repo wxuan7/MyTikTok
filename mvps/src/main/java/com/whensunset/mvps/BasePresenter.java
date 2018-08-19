@@ -11,6 +11,7 @@ import com.whensunset.annotation.inject.Injector;
 import com.whensunset.annotation.inject.Injectors;
 import com.whensunset.annotation.inject.ProviderHolder;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -35,7 +36,7 @@ public class BasePresenter implements Presenter {
   
   
   @Override
-  public void init(View view) {
+  public void create(View view) {
     if (isInitialized()) {
       
       throw new IllegalStateException("Presenter只能被初始化一次!");
@@ -46,9 +47,9 @@ public class BasePresenter implements Presenter {
       
       ButterKnife.bind(this, view);
   
-      initChildren();
+      createChildren();
       
-      onInit();
+      onCreate();
     
     } catch (Exception e) {
       isValid = false;
@@ -57,13 +58,13 @@ public class BasePresenter implements Presenter {
     isInitialized = true;
   }
   
-  private void initChildren() {
+  private void createChildren() {
     for (Presenter childPresenter: mChildPresenterList) {
-      childPresenter.init(mRootView);
+      childPresenter.create(mRootView);
     }
   }
   
-  protected void onInit() {
+  protected void onCreate() {
   
   }
   
@@ -95,6 +96,7 @@ public class BasePresenter implements Presenter {
     
     onBind(callerContext);
     
+    isBinding = true;
   }
   
   private void bindChild(Object... callerContext) {
@@ -167,16 +169,36 @@ public class BasePresenter implements Presenter {
     return isInitialized;
   }
   
+  public boolean isBinding() {
+    return isBinding;
+  }
+  
   @Override
   public Activity getActivity() {
-    Context context = getContext();
-    while (context instanceof ContextWrapper) {
-      if (context instanceof Activity) {
-        return (Activity) context;
+
+    Activity activity = null;
+    if (getContext().getClass().getName().contains("com.android.internal.policy.DecorContext")) {
+      try {
+        Field field = getContext().getClass().getDeclaredField("mPhoneWindow");
+        field.setAccessible(true);
+        Object obj = field.get(getContext());
+        java.lang.reflect.Method m1 = obj.getClass().getMethod("getContext");
+        activity = (Activity) (m1.invoke(obj));
+      
+      } catch (Exception e) {
+        e.printStackTrace();
       }
-      context = ((ContextWrapper) context).getBaseContext();
+    } else {
+      Context context = getContext();
+      while (context instanceof ContextWrapper) {
+        if (context instanceof Activity) {
+          return (Activity) context;
+        }
+        context = ((ContextWrapper) context).getBaseContext();
+      }
+      return (Activity) getContext();
     }
-    return (Activity) getContext();
+    return activity;
   }
   
   @Override
@@ -187,7 +209,7 @@ public class BasePresenter implements Presenter {
     mChildPresenterList.add(presenter);
     
     if (isInitialized()) {
-      presenter.init(mRootView);
+      presenter.create(mRootView);
     }
     return this;
   }

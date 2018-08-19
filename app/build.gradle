@@ -16,9 +16,9 @@ android {
         javaCompileOptions {
             annotationProcessorOptions {
                 includeCompileClasspath = true
-                arguments += [providerInterfaceName      : 'com.example.whensunset.mytiktok.FetcherHelper',
-                              invokerConfig: rootProject.ext.invokerConfig['fileName'],
-                              injectorInterfaceName      : 'com.example.whensunset.mytiktok.InjectorHelper']
+                arguments += [providerInterfaceName: 'com.example.whensunset.mytiktok.FetcherHelper',
+                              invokerConfig        : rootProject.ext.invokerConfig['fileName'],
+                              injectorInterfaceName: 'com.example.whensunset.mytiktok.InjectorHelper']
             }
         }
     }
@@ -35,5 +35,8 @@ dependencies {
     implementation deps.support.app_compat
     implementation project(path: ':annotation')
     implementation project(path: ':mvps')
+    implementation deps.butterknife
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
+    annotationProcessor deps.butterknife_compiler
     annotationProcessor project(":annotation-processing")
 }

@@ -10,7 +10,7 @@ import android.view.View;
  */
 
 public interface Presenter {
-  void init(View view);
+  void create(View view);
   
   void bind(Object... callerContext);
   
