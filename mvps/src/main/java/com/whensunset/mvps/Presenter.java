@@ -14,6 +14,8 @@ public interface Presenter {
   
   void bind(Object... callerContext);
   
+  void unbind();
+  
   void destroy();
   
   Presenter add(Presenter presenter);
