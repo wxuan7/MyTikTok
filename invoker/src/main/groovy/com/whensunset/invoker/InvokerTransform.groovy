@@ -15,36 +15,6 @@ public class InvokerTransform extends Transform {
     private Set<File> mJars = new HashSet<>()
     private Set<File> mClassFiles = new HashSet<>()
 
-    // 构造函数，我们将Project保存下来备用
-    public InvokerTransform(Project project) {
-        mProject = project
-    }
-
-    // 设置我们自定义的Transform对应的Task名称
-    @Override
-    String getName() {
-        return "invoker"
-    }
-
-    // 指定输入的类型，通过这里的设定，可以指定我们要处理的文件类型
-    //这样确保其他类型的文件不会传入
-    @Override
-    Set<QualifiedContent.ContentType> getInputTypes() {
-        // 仅处理Jar
-        return TransformManager.CONTENT_JARS
-    }
-
-    // 指定Transform的作用范围
-    @Override
-    Set<QualifiedContent.Scope> getScopes() {
-        return TransformManager.SCOPE_FULL_PROJECT
-    }
-
-    @Override
-    boolean isIncremental() {
-        return false
-    }
-
     @Override
     void transform(Context context, Collection<TransformInput> inputs,
                    Collection<TransformInput> referencedInputs,
@@ -53,7 +23,7 @@ public class InvokerTransform extends Transform {
         long start = System.currentTimeMillis()
         // Transform的inputs有两种类型，一种是目录，一种是jar包，要分开遍历
         inputs.each { TransformInput input ->
-            // 必须处理，否则kwai-android里的类无法打到最终的apk中
+            // 必须处理，否则android app module里的类无法打到最终的apk中
             input.directoryInputs.each { DirectoryInput directoryInput ->
                 // 获取output目录
                 def dest = outputProvider.getContentLocation(directoryInput.name,
@@ -102,4 +72,35 @@ public class InvokerTransform extends Transform {
         new JarModifier(context.getPath().contains('Debug'), mScanner.mInfos).modify()
         println("invoker ${System.currentTimeMillis() - start}ms used for modify")
     }
+
+    // 构造函数，我们将Project保存下来备用
+    public InvokerTransform(Project project) {
+        mProject = project
+    }
+
+    // 设置我们自定义的Transform对应的Task名称
+    @Override
+    String getName() {
+        return "invoker"
+    }
+
+    // 指定输入的类型，通过这里的设定，可以指定我们要处理的文件类型
+    //这样确保其他类型的文件不会传入
+    @Override
+    Set<QualifiedContent.ContentType> getInputTypes() {
+        // 仅处理Jar
+        return TransformManager.CONTENT_JARS
+    }
+
+    // 指定Transform的作用范围
+    @Override
+    Set<QualifiedContent.Scope> getScopes() {
+        return TransformManager.SCOPE_FULL_PROJECT
+    }
+
+    @Override
+    boolean isIncremental() {
+        return false
+    }
+
 }

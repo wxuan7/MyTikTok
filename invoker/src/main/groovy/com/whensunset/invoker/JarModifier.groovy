@@ -33,20 +33,6 @@ public class JarModifier {
         }
     }
 
-    private void restructureMapping() {
-        mInfos.mInvocations.each { Invocation invocation ->
-            File file = mInfos.mClassContainers.get(invocation.mInvoker.className)
-            mFile2InvocationMap.computeIfAbsent(file,
-                    { key ->
-                        return new HashMap<>()
-                    })
-            mFile2InvocationMap.get(file)
-                    .computeIfAbsent(invocation.mInvoker.className,
-                    { key -> return new HashSet<>() })
-            mFile2InvocationMap.get(file).get(invocation.mInvoker.className).add(invocation)
-        }
-    }
-
     private byte[] modifyClass(String invokerName, Set<Invocation> invocationSet) {
         // 增加排序, 保证每次编译生成的结果类是一样的
         List<Invocation> invocations = new ArrayList<>(invocationSet);
@@ -70,6 +56,20 @@ public class JarModifier {
         byte[] bytes = invoker.toBytecode()
         invoker.detach()
         return bytes
+    }
+
+    private void restructureMapping() {
+        mInfos.mInvocations.each { Invocation invocation ->
+            File file = mInfos.mClassContainers.get(invocation.mInvoker.className)
+            mFile2InvocationMap.computeIfAbsent(file,
+                    { key ->
+                        return new HashMap<>()
+                    })
+            mFile2InvocationMap.get(file)
+                    .computeIfAbsent(invocation.mInvoker.className,
+                    { key -> return new HashSet<>() })
+            mFile2InvocationMap.get(file).get(invocation.mInvoker.className).add(invocation)
+        }
     }
 
     private void writeFile(File file, Map<String, byte[]> newClasses) {
