@@ -15,11 +15,17 @@
 # 如何开始编译运行项目
 
 ![图24：根 build.gradle.png](https://upload-images.jianshu.io/upload_images/2911038-74ed8844a36f4bc4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+图1
 ![图25：app module build.gradle .png](https://upload-images.jianshu.io/upload_images/2911038-5a89e3bc4252f0d4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+图2
 ![图26：invoker gradle properties.png](https://upload-images.jianshu.io/upload_images/2911038-e688d06e21d998b7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+图3
 ![图27：invoker gradle文件.png](https://upload-images.jianshu.io/upload_images/2911038-214fa35eedeefae3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+图4
 ![图28：maven目录.png](https://upload-images.jianshu.io/upload_images/2911038-6d59b8bbf590891e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+图5
 ![图29：运行 upload.png](https://upload-images.jianshu.io/upload_images/2911038-e8a7a7775d65146e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+图6
 
 - 1.关掉 instant run
 - 2.使用插件有两个步骤：
