@@ -24,6 +24,7 @@ public class JarModifier {
     public void modify() {
         restructureMapping()
         mFile2InvocationMap.each { File jar, Map<String, Set<Invocation>> map ->
+            println("何时夕:" + jar.getAbsolutePath())
             mPool.appendClassPath(jar.getAbsolutePath())
             Map<String, byte[]> newClasses = new HashMap<>()
             map.each { String invoker, Set<Invocation> invocations ->
@@ -73,6 +74,7 @@ public class JarModifier {
     }
 
     private void writeFile(File file, Map<String, byte[]> newClasses) {
+        println("invoker" + file.absolutePath)
         def tmpFile = new File(file.getParent(), file.getName() + ".tmp")
         if (tmpFile.exists()) {
             tmpFile.delete()
