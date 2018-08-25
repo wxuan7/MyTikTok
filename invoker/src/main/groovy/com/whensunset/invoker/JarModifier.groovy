@@ -105,10 +105,10 @@ public class JarModifier {
             ZipEntry outEntry = new ZipEntry(entry.getName())
             output.putNextEntry(outEntry)
             ByteStreams.copy(input, output)
-            Closeables.close(input, true)
+            Closeables.close(input, false)
             output.closeEntry()
         }
-        Closeables.close(output, true)
+        Closeables.close(output, false)
 
         if (mIsDebug) {
             file.renameTo(new File(file.getParent(), "${file.getName()}.backup.jar"))
