@@ -1,7 +1,6 @@
 package com.whensunset.invoker
 
 import com.google.common.io.ByteStreams
-import com.google.common.io.Closeables
 import javassist.ClassPool
 import javassist.CtClass
 import javassist.CtMethod
@@ -104,11 +103,28 @@ public class JarModifier {
             ZipEntry outEntry = new ZipEntry(entry.getName())
             output.putNextEntry(outEntry)
             ByteStreams.copy(input, output)
-            Closeables.close(input, false)
-            output.closeEntry()
+
+            if (input != null) {
+                try {
+                    input.close()
+                    output.closeEntry()
+                } catch (IOException var3) {
+                    println("invoker:" + var3.getCause())
+                    println("invoker:" + var3.getMessage())
+                    println("invoker:" + var3.getLocalizedMessage())
+                }
+            }
         }
-        Closeables.close(output, false)
-        Closeables.close(jar, false)
+        if(jar != null) {
+            try {
+                jar.close()
+                output.close()
+            } catch (IOException var3) {
+                println("invoker:" + var3.getCause())
+                println("invoker:" + var3.getMessage())
+                println("invoker:" + var3.getLocalizedMessage())
+            }
+        }
 
         if (mIsDebug) {
             boolean renameSucceed = jarFile.renameTo(new File(jarFile.getParent(), "${jarFile.getName()}.backup.jar"))
