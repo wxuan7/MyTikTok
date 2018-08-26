@@ -24,7 +24,6 @@ public class JarModifier {
     public void modify() {
         restructureMapping()
         mFile2InvocationMap.each { File jar, Map<String, Set<Invocation>> map ->
-            println("何时夕:" + jar.getAbsolutePath())
             mPool.appendClassPath(jar.getAbsolutePath())
             Map<String, byte[]> newClasses = new HashMap<>()
             map.each { String invoker, Set<Invocation> invocations ->
@@ -73,14 +72,14 @@ public class JarModifier {
         }
     }
 
-    private void writeFile(File file, Map<String, byte[]> newClasses) {
-        println("invoker" + file.absolutePath)
-        def tmpFile = new File(file.getParent(), file.getName() + ".tmp")
+    private void writeFile(File jarFile, Map<String, byte[]> newClasses) {
+        println("invoker" + jarFile.absolutePath)
+        def tmpFile = new File(jarFile.getParent(), jarFile.getName() + ".tmp")
         if (tmpFile.exists()) {
             tmpFile.delete()
         }
         JarOutputStream output = new JarOutputStream(new FileOutputStream(tmpFile))
-        def jar = new JarFile(file)
+        def jar = new JarFile(jarFile)
         jar.entries().each { entry ->
             InputStream input = null
             if (entry.getName().endsWith('.class')) {
@@ -89,14 +88,14 @@ public class JarModifier {
                 if (bytes != null) {
                     input = new ByteArrayInputStream(bytes)
                     if (mIsDebug) {
-                        File out = new File(file.getParent(), "${className}.modified.class")
+                        File out = new File(jarFile.getParent(), "${className}.modified.class")
                         if (out.exists()) {
                             out.delete()
                             out.createNewFile()
                         }
                         ByteStreams.copy(new ByteArrayInputStream(bytes), new FileOutputStream(out))
                     }
-                    println("invoker modify ${entry.getName()} in ${file.getName()}")
+                    println("invoker modify ${entry.getName()} in ${jarFile.getName()}")
                 }
             }
             if (input == null) {
@@ -109,14 +108,16 @@ public class JarModifier {
             output.closeEntry()
         }
         Closeables.close(output, false)
+        Closeables.close(jar, false)
 
         if (mIsDebug) {
-            file.renameTo(new File(file.getParent(), "${file.getName()}.backup.jar"))
+            boolean renameSucceed = jarFile.renameTo(new File(jarFile.getParent(), "${jarFile.getName()}.backup.jar"))
+            println("invoker rename " + jarFile.getName() + ":" + renameSucceed)
         }
-        if (file.exists()) {
-            file.delete()
+        if (jarFile.exists()) {
+            println("invoker delete " + jarFile.getName() + ":" + jarFile.delete())
         }
-        tmpFile.renameTo(file)
+        tmpFile.renameTo(jarFile)
     }
 
     private String pathToClass(String path) {

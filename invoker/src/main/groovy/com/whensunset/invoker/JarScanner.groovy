@@ -1,5 +1,6 @@
 package com.whensunset.invoker
 
+import com.google.common.io.Closeables
 import com.google.gson.reflect.TypeToken
 
 import java.util.jar.JarEntry
@@ -20,6 +21,7 @@ public class JarScanner {
             scanMetaInfo(jar, file.getAbsolutePath())
         }
         scanClasses(jar, file)
+        Closeables.close(jar, false)
     }
 
     public boolean hasFinished() {
