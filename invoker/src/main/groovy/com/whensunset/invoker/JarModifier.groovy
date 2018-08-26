@@ -4,8 +4,7 @@ import com.google.common.io.ByteStreams
 import javassist.ClassPool
 import javassist.CtClass
 import javassist.CtMethod
-import sun.tools.java.ClassPath
-
+import javassist.ClassPath
 import java.util.jar.JarFile
 import java.util.jar.JarOutputStream
 import java.util.zip.ZipEntry
