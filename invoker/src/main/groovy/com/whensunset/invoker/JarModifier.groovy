@@ -4,6 +4,7 @@ import com.google.common.io.ByteStreams
 import javassist.ClassPool
 import javassist.CtClass
 import javassist.CtMethod
+import sun.tools.java.ClassPath
 
 import java.util.jar.JarFile
 import java.util.jar.JarOutputStream
@@ -23,11 +24,14 @@ public class JarModifier {
     public void modify() {
         restructureMapping()
         mFile2InvocationMap.each { File jar, Map<String, Set<Invocation>> map ->
-            mPool.appendClassPath(jar.getAbsolutePath())
+            ClassPath classPath = mPool.appendClassPath(jar.getAbsolutePath())
             Map<String, byte[]> newClasses = new HashMap<>()
             map.each { String invoker, Set<Invocation> invocations ->
                 newClasses.put(invoker, modifyClass(invoker, invocations))
             }
+
+            println("invoker:close classPath")
+            mPool.removeClassPath(classPath)
             writeFile(jar, newClasses)
         }
     }
@@ -106,6 +110,7 @@ public class JarModifier {
 
             if (input != null) {
                 try {
+                    println("invoker:close input")
                     input.close()
                     output.closeEntry()
                 } catch (IOException var3) {
@@ -117,6 +122,7 @@ public class JarModifier {
         }
         if(jar != null) {
             try {
+                println("invoker:close jar output")
                 jar.close()
                 output.close()
             } catch (IOException var3) {
