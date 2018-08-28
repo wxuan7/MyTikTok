@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-apply plugin: 'invoker'
+//apply plugin: 'invoker'
 rootProject.ext.invokerConfig = [
         'fileName': 'META-INF/services/inject/invoker_info'
 ]
