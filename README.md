@@ -31,7 +31,7 @@
 - 1.关掉 instant run
 - 2.使用插件有两个步骤：
     + 1.在根目录的 build.gradle 文件里面引入插件的代码库。如图1
-    + 2.在需要使用插件的 module 中引入插件。如图2
+    + 2.在需要使用插件的 module 中引入插件。现在可以先注释掉app module 插件中的引用，等待插件上传成功的之后再引用。如图2
 - 3.可能会有人奇怪了，我运行了项目之后报错了啊！说是找不到这个插件。这里我们应该了解一下关于 Maven 的一些知识。
     + 1.Maven 是一种构建源代码的工具，他会将某些源代码以某种格式(Project Object Model)进行打包，这样我们就能很方便的引用某个别人开源的代码库了。
     + 2.gradle 中能够使用 Maven 包，使用的方法就是大家在 dependencies 块里面的引用方式。
@@ -42,6 +42,6 @@
     + 3.注意 gradle.properties 以及 build.gradle 文件里面引用的路径需要是**你自己设置的本地路径。**
     + 4.我们需要再在 module 的 gradle 文件里面添加一个 maven 插件，然后写一个上传方法 uploadArchives。如图4.
     + 5.在**Gradle project窗口运行 uploadArchives任务，这样就上传了 Invoker 插件，如图6。**
-- 5.最后重新 clean build 一下就不会再找不到插件了。
+- 5.最后将插件的引用打开，重新 clean build 一下就可以在app module 里面使用插件了。
 
 
