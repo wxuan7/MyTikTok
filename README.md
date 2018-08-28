@@ -16,10 +16,8 @@
 
 # 如何开始编译运行项目
 
-![图24：根 build.gradle.png](https://upload-images.jianshu.io/upload_images/2911038-74ed8844a36f4bc4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
-
-![图25：app module build.gradle .png](https://upload-images.jianshu.io/upload_images/2911038-5a89e3bc4252f0d4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
-
+![图24：根 build.gradle.png](https://user-gold-cdn.xitu.io/2018/8/28/1657fdafc9ccbffc?w=1222&h=598&f=png&s=99405)
+![图25：app module build.gradle.png](https://user-gold-cdn.xitu.io/2018/8/28/1657fdafc8e816c2?w=842&h=554&f=png&s=99803)
 ![图26：invoker gradle properties.png](https://upload-images.jianshu.io/upload_images/2911038-e688d06e21d998b7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 ![图27：invoker gradle文件.png](https://upload-images.jianshu.io/upload_images/2911038-214fa35eedeefae3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
