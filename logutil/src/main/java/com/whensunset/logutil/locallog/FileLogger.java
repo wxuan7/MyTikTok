@@ -36,7 +36,6 @@ public class FileLogger {
   static final long TRIGGER_DELAY_DURATION = 30 * 1000; // 30s循环flush
 
   public static final int DEFAULT_LOG_MAX_NUM = 30; // debug下error log的最多展示条数
-  public static final String DEBUG_LOG_FILTER_ERROR = "ks://error";
   public static final String DEBUG_LOG_FILTER_WARN = "waring";
   public static final String DEBUG_LOG_FILTER_DIAGNOSIS_ERROR = "diagnosis_error";
 
