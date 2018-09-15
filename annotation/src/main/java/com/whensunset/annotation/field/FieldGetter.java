@@ -2,16 +2,12 @@ package com.whensunset.annotation.field;
 
 import java.util.Set;
 
-public interface Fetcher<I> {
-  Fetcher<I> init();
-
-  <T> T get(I target, Class tClass);
+public interface FieldGetter<I> {
+  FieldGetter<I> init();
 
   <T> T get(I target, String field);
 
   <T> void set(I target, String field, T value);
-
-  <T> void set(I target, Class<T> tClass, T value);
 
   Set<Object> allFields(I target);
 

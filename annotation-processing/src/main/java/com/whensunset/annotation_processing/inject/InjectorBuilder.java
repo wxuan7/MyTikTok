@@ -1,15 +1,14 @@
 package com.whensunset.annotation_processing.inject;
 
-import com.whensunset.annotation.inject.Injector;
-import com.whensunset.annotation.inject.ProviderHolder;
-import com.whensunset.annotation.inject.Reference;
-import com.whensunset.annotation_processing.util.ClassBuilder;
-import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.whensunset.annotation.inject.Injector;
+import com.whensunset.annotation.inject.ProviderHolder;
+import com.whensunset.annotation.inject.Reference;
+import com.whensunset.annotation_processing.util.ClassBuilder;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,15 +21,15 @@ public class InjectorBuilder extends ClassBuilder {
   private static final String sFieldInjectTypes = "mInjectTypes";
   private static final String sParamTarget = "target";
   private static final String sParamAccessible = "accessible";
-
+  
   private final MethodSpec.Builder mConstructor;
   private final MethodSpec.Builder mAllFields;
   private final MethodSpec.Builder mAllTypes;
   private final MethodSpec.Builder mInject;
   private final MethodSpec.Builder mReset;
-
-  public InjectorBuilder(String pkg, String className, AnnotationSpec generated,
-      TypeName rootType) {
+  
+  public InjectorBuilder(String pkg, String className,
+                         TypeName rootType) {
     mPackage = pkg;
     mClassName = className.replace("$", "_") + sClassSuffix;
     TypeName fieldNamesType =
@@ -39,7 +38,6 @@ public class InjectorBuilder extends ClassBuilder {
         ParameterizedTypeName.get(ClassName.get(Set.class), TypeName.get(Class.class));
     mType = TypeSpec.classBuilder(mClassName)
         .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-//        .addAnnotation(generated)
         .addField(fieldNamesType, sFieldInjectNames, Modifier.PRIVATE, Modifier.FINAL)
         .addField(fieldTypesType, sFieldInjectTypes, Modifier.PRIVATE, Modifier.FINAL)
         .addSuperinterface(ParameterizedTypeName.get(ClassName.get(Injector.class),
@@ -64,21 +62,21 @@ public class InjectorBuilder extends ClassBuilder {
         .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
         .addParameter(rootType, sParamTarget);
   }
-
+  
   public void onByTypeField(String fieldName, boolean crashNoFound, boolean acceptNull,
-      TypeName fieldType) {
+                            TypeName fieldType) {
     if (crashNoFound) {
       mConstructor.addStatement("$L.add($T.class)", sFieldInjectTypes, fieldType);
     }
     if (acceptNull) {
       mInject.beginControlFlow("if ($T.have($L, $T.class))", ProviderHolder.class, sParamAccessible,
           fieldType);
-      mInject.addStatement("Object valFor$L = $T.fetch($L, $T.class)", fieldName,
+      mInject.addStatement("Object valFor$L = $T.get($L, $T.class)", fieldName,
           ProviderHolder.class, sParamAccessible, fieldType);
       mInject.addStatement("$L.$L = ($T)valFor$L", sParamTarget, fieldName, fieldType, fieldName);
       mInject.endControlFlow();
     } else {
-      mInject.addStatement("Object valFor$L = $T.fetch($L, $T.class)", fieldName,
+      mInject.addStatement("Object valFor$L = $T.get($L, $T.class)", fieldName,
           ProviderHolder.class, sParamAccessible, fieldType);
       mInject.beginControlFlow("if (valFor$L != null)", fieldName)
           .addStatement("$L.$L = ($T)valFor$L", sParamTarget, fieldName, fieldType, fieldName)
@@ -86,9 +84,9 @@ public class InjectorBuilder extends ClassBuilder {
     }
     addToReset(fieldName, fieldType);
   }
-
+  
   public void onByNameField(String fieldName, boolean crashNoFound, boolean acceptNull,
-      TypeName fieldType, String fieldKey, boolean isReference) {
+                            TypeName fieldType, String fieldKey, boolean isReference) {
     if (crashNoFound) {
       mConstructor.addStatement("$L.add($S)", sFieldInjectNames, fieldKey);
     }
@@ -102,12 +100,12 @@ public class InjectorBuilder extends ClassBuilder {
       if (acceptNull) {
         mInject.beginControlFlow("if ($T.have($L, $S))", ProviderHolder.class, sParamAccessible,
             fieldKey);
-        mInject.addStatement("Object valFor$L = $T.fetch($L, $S)", fieldName,
+        mInject.addStatement("Object valFor$L = $T.get($L, $S)", fieldName,
             ProviderHolder.class, sParamAccessible, fieldKey);
         mInject.addStatement("$L.$L = ($T)valFor$L", sParamTarget, fieldName, fieldType, fieldName);
         mInject.endControlFlow();
       } else {
-        mInject.addStatement("Object valFor$L = $T.fetch($L, $S)", fieldName,
+        mInject.addStatement("Object valFor$L = $T.get($L, $S)", fieldName,
             ProviderHolder.class, sParamAccessible, fieldKey);
         mInject.beginControlFlow("if (valFor$L != null)", fieldName)
             .addStatement("$L.$L = ($T)valFor$L", sParamTarget, fieldName, fieldType, fieldName)
@@ -116,7 +114,7 @@ public class InjectorBuilder extends ClassBuilder {
     }
     addToReset(fieldName, fieldType);
   }
-
+  
   private void addToReset(String fieldName, TypeName fieldType) {
     String resetValue;
     if (fieldType.isPrimitive() || fieldType.isBoxedPrimitive()) {
@@ -139,10 +137,10 @@ public class InjectorBuilder extends ClassBuilder {
     } else {
       resetValue = "null";
     }
-
+    
     mReset.addStatement("$L.$L = $L", sParamTarget, fieldName, resetValue);
   }
-
+  
   @Override
   public TypeSpec.Builder build() {
     return mType

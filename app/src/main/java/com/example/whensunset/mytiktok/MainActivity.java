@@ -14,17 +14,17 @@ public class MainActivity extends AppCompatActivity {
   @Field("mTextString")
   String mTextString = "mTextString";
   
-  @Field(value = "mImage" , doAdditionalFetch = true)
+  @Field(value = "mImage", doAdditionalGet = true)
   Drawable mImage;
   
   Presenter mPresenter;
-
+  
   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-  
+    
     mPresenter = new LinearPresenter();
     mPresenter.create(getWindow().getDecorView());
     

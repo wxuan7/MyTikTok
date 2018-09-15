@@ -19,16 +19,15 @@ public final class SortedElement implements Iterable<Map.Entry<TypeElement, List
   public static final Comparator<Element> COMPARATOR = new Comparator<Element>() {
     @Override
     public int compare(Element element, Element t1) {
-      // toString就是获得element名
       return element.toString().compareTo(t1.toString());
     }
   };
-
+  
   private final Map<TypeElement, List<Element>> mClassFieldsMapping = new HashMap<>();
   private final Set<TypeElement> mFieldSortedFlags = new HashSet<>();
-
+  
   public static SortedElement fromRoundEnv(RoundEnvironment roundEnv,
-      Class<? extends Annotation> annotation) {
+                                           Class<? extends Annotation> annotation) {
     SortedElement sortedElement = new SortedElement();
     for (Element field : roundEnv.getElementsAnnotatedWith(annotation)) {
       Element rootClass = field.getEnclosingElement();
@@ -44,25 +43,27 @@ public final class SortedElement implements Iterable<Map.Entry<TypeElement, List
     }
     return sortedElement;
   }
-
-  private SortedElement() {}
-
+  
+  private SortedElement() {
+  }
+  
   @Override
   public Iterator<Map.Entry<TypeElement, List<Element>>> iterator() {
     return new Iterator<Map.Entry<TypeElement, List<Element>>>() {
       private List<TypeElement> mKeys;
       private Iterator<TypeElement> mKeyIterator;
+      
       {
         mKeys = new ArrayList<>(mClassFieldsMapping.keySet());
         mKeys.sort(COMPARATOR);
         mKeyIterator = mKeys.iterator();
       }
-
+      
       @Override
       public boolean hasNext() {
         return mKeyIterator.hasNext();
       }
-
+      
       @Override
       public Map.Entry<TypeElement, List<Element>> next() {
         TypeElement rootClass = mKeyIterator.next();

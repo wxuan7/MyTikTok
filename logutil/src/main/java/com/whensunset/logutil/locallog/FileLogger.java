@@ -1,6 +1,5 @@
 package com.whensunset.logutil.locallog;
 
-import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -25,61 +24,41 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import io.reactivex.disposables.Disposable;
-
 public class FileLogger {
   public static File ROOT_DIR = new File("/mnt/sdcard/mytiktok");
-  static final int MSG_ADD = 1;
-  static final int MSG_FLUSH = 2;
-  static final int LOG_CACHE_COUNT = 20; // 最多攒20条log后flush
-  static final long LOG_MAX_LENGTH = 20 * 1024 * 1024; // 文件最大20M
-  static final long TRIGGER_DELAY_DURATION = 30 * 1000; // 30s循环flush
-
-  public static final int DEFAULT_LOG_MAX_NUM = 30; // debug下error log的最多展示条数
-  public static final String DEBUG_LOG_FILTER_WARN = "waring";
-  public static final String DEBUG_LOG_FILTER_DIAGNOSIS_ERROR = "diagnosis_error";
-
-
+  private static final int MSG_ADD = 1;
+  private static final int MSG_FLUSH = 2;
+  private static final int LOG_CACHE_COUNT = 40; // 最多攒40条log后flush
+  private static final long LOG_MAX_LENGTH = 40 * 1024 * 1024; // 文件最大40M
+  private static final long TRIGGER_DELAY_DURATION = 40 * 1000; // 40s循环flush
+  
   private static final String LOG_FILE_NAME = "debug.log";
   private static final String LOG_DIR = new File(ROOT_DIR, ".debug").getAbsolutePath();
-
+  
   final List<String> mLogs;
-  private final Logger mLogger;
-
-  private static Disposable sUploadDispose;
-
+  private final LoggerHandler mLoggerHandler;
+  
   public FileLogger() {
     HandlerThread thread = new HandlerThread("FileLogger", Process.THREAD_PRIORITY_BACKGROUND);
     thread.start();
-    mLogger = new Logger(thread.getLooper());
+    mLoggerHandler = new LoggerHandler(thread.getLooper());
     mLogs = new ArrayList<>();
-    mLogger.sendEmptyMessage(MSG_FLUSH);
+    mLoggerHandler.sendEmptyMessage(MSG_FLUSH);
   }
-
+  
   public void addLog(String log) {
     if (TextUtils.isEmpty(log)) {
       return;
     }
-    Message message = Message.obtain(mLogger, MSG_ADD);
+    Message message = Message.obtain(mLoggerHandler, MSG_ADD);
     message.obj = log;
     message.sendToTarget();
   }
-
+  
   public static void sendLog() {
-    // todo 未来实现
+    // todo 未来实现，显示一个界面用于让用户可以将本地的日志文件上传服务器
   }
-
-  /**
-   * @param extra extra是一个json串
-   * */
-  public static void uploadLog(final Context context, String extra) {
-    // todo 未来实现
-  }
-
-  public static void uploadLog(final Context context) {
-    uploadLog(context, "");
-  }
-
+  
   public static List<String> getLogList(int maxNum, String... filters) {
     List<String> logList = new LinkedList<>();
     File logFile = getLogFile();
@@ -123,7 +102,7 @@ public class FileLogger {
     }
     return logList;
   }
-
+  
   private static File getLogFile() {
     File logDir = new File(LOG_DIR);
     File logFile = new File(logDir, LOG_FILE_NAME);
@@ -140,13 +119,13 @@ public class FileLogger {
     }
     return logFile;
   }
-
-  class Logger extends Handler {
-
-    public Logger(Looper looper) {
+  
+  class LoggerHandler extends Handler {
+    
+    public LoggerHandler(Looper looper) {
       super(looper);
     }
-
+    
     @Override
     public void handleMessage(Message msg) {
       switch (msg.what) {
@@ -158,7 +137,7 @@ public class FileLogger {
           break;
       }
     }
-
+    
     void add(String log) {
       if (TextUtils.isEmpty(log)) {
         return;
@@ -168,7 +147,7 @@ public class FileLogger {
         sendEmptyMessage(MSG_FLUSH);
       }
     }
-
+    
     void flush() {
       if (mLogs.isEmpty()) {
         return;
@@ -180,7 +159,7 @@ public class FileLogger {
       // 定时触发下一次
       sendEmptyMessageDelayed(MSG_FLUSH, TRIGGER_DELAY_DURATION);
     }
-
+    
     void writeLog(List<String> logs) {
       File logFile = getLogFile();
       if (logFile == null) {
@@ -210,7 +189,7 @@ public class FileLogger {
         trimToSize(logFile, LOG_MAX_LENGTH / 2);
       }
     }
-
+    
     // 裁剪文件, 去掉前面的部分, 使其到达目标长度
     void trimToSize(File logFile, long length) {
       // 计算要跳过多少字节

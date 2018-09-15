@@ -30,6 +30,7 @@ import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 
 import static com.whensunset.annotation_processing.invoker.InvokerProcessor.INVOKER_CONFIG;
+
 @AutoService(Processor.class)
 @SupportedAnnotationTypes("com.whensunset.annotation.invoker.InvokeBy")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
@@ -37,15 +38,14 @@ import static com.whensunset.annotation_processing.invoker.InvokerProcessor.INVO
 public class InvokerProcessor extends BaseProcessor {
   public static final String INVOKER_CONFIG = "invokerConfig";
   private String mFile;
-  // 多轮apt只能创建一次文件，只能保存writer
   private Writer mWriter;
-
+  
   @Override
   public synchronized void init(ProcessingEnvironment processingEnv) {
     super.init(processingEnv);
     mFile = processingEnv.getOptions().get(INVOKER_CONFIG);
   }
-
+  
   @Override
   public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnv) {
     Set<Invocation> invocations = new HashSet<>();
@@ -72,20 +72,16 @@ public class InvokerProcessor extends BaseProcessor {
       if (clazz == null || clazz.getKind() != ElementKind.CLASS) {
         continue;
       }
-      // 构建Invocation关系
       Invocation invocation = new Invocation();
       invocation.mTarget = new InvokeMethod();
       invocation.mTarget.className = clazz.toString();
       invocation.mTarget.methodName = method.getSimpleName().toString();
       invocation.mInvoker = new InvokeMethod();
-      // https://area-51.blog/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
-      // 获得invoker类名
       try {
         invokeBy.invokerClass();
       } catch (MirroredTypeException e) {
         invocation.mInvoker.className = e.getTypeMirror().toString();
       }
-      // 通过methodId 反査到对应的
       String methodId = invokeBy.methodId();
       Element invokerElement = mUtils.getTypeElement(invocation.mInvoker.className);
       for (Element invokerMethod : invokerElement.getEnclosedElements()) {
@@ -99,7 +95,7 @@ public class InvokerProcessor extends BaseProcessor {
       }
       invocations.add(invocation);
     }
-
+    
     if (invocations.isEmpty()) {
       return false;
     }
@@ -116,7 +112,7 @@ public class InvokerProcessor extends BaseProcessor {
     }
     return success;
   }
-
+  
   @Override
   protected void finalize() throws Throwable {
     super.finalize();
@@ -124,7 +120,7 @@ public class InvokerProcessor extends BaseProcessor {
       mWriter.close();
     }
   }
-
+  
   private Writer openWriter() {
     if (mWriter != null) {
       return mWriter;

@@ -10,7 +10,7 @@ public class Reference<T> {
   }
 
   public T get() {
-    return (T) ProviderHolder.fetch(mProvider, mName);
+    return (T) ProviderHolder.get(mProvider, mName);
   }
 
   public void set(T value) {

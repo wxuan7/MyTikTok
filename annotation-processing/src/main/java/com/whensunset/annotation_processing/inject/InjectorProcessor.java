@@ -1,12 +1,11 @@
 package com.whensunset.annotation_processing.inject;
 
+import com.google.auto.service.AutoService;
+import com.squareup.javapoet.TypeName;
 import com.whensunset.annotation.inject.Inject;
 import com.whensunset.annotation.inject.Reference;
 import com.whensunset.annotation_processing.util.BaseProcessor;
 import com.whensunset.annotation_processing.util.SortedElement;
-import com.google.auto.service.AutoService;
-import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.TypeName;
 
 import java.util.List;
 import java.util.Map;
@@ -36,7 +35,7 @@ public class InjectorProcessor extends BaseProcessor {
   private boolean mHasProcessed;
   private String mPackage;
   private String mClassName;
-
+  
   @Override
   public synchronized void init(ProcessingEnvironment processingEnv) {
     super.init(processingEnv);
@@ -50,14 +49,14 @@ public class InjectorProcessor extends BaseProcessor {
     mPackage = fullName.substring(0, lastDot);
     mMessager = processingEnv.getMessager();
   }
-
+  
   @Override
   public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnv) {
     if (mHasProcessed) {
       return false;
     }
     InjectorHelperBuilder helperBuilder =
-        new InjectorHelperBuilder(mPackage, mClassName, mGeneratedAnnotation);
+        new InjectorHelperBuilder(mPackage, mClassName);
     SortedElement sortedElement = SortedElement.fromRoundEnv(roundEnv, Inject.class);
     for (Map.Entry<TypeElement, List<Element>> type : sortedElement) {
       List<Element> fields = type.getValue();
@@ -65,7 +64,7 @@ public class InjectorProcessor extends BaseProcessor {
         continue;
       }
       InjectorBuilder injectorBuilder =
-          generateForClass(mGeneratedAnnotation, type.getKey(), fields);
+          generateForClass(type.getKey(), fields);
       if (injectorBuilder == null) {
         continue;
       }
@@ -77,15 +76,15 @@ public class InjectorProcessor extends BaseProcessor {
     mHasProcessed = true;
     return false;
   }
-
-  private InjectorBuilder generateForClass(AnnotationSpec generated,
+  
+  private InjectorBuilder generateForClass(
       Element rootClass, List<Element> fields) {
     if (rootClass == null || rootClass.getKind() != ElementKind.CLASS) {
       return null;
     }
     String pkg = mUtils.getPackageOf(rootClass).toString();
     InjectorBuilder builder =
-        new InjectorBuilder(pkg, rootClass.getSimpleName().toString(), generated,
+        new InjectorBuilder(pkg, rootClass.getSimpleName().toString(),
             TypeName.get(rootClass.asType()));
     for (Element field : fields) {
       if (field.getKind() != ElementKind.FIELD || field.getModifiers().contains(Modifier.STATIC)) {

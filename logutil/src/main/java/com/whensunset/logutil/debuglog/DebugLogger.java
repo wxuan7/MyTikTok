@@ -239,10 +239,6 @@ public final class DebugLogger {
 
   public static void catchedException(String tag, Throwable thr) {
     log(LEVEL.ERROR, tag, thr.getMessage(), thr);
-//    if (GlobalConfig.DEBUG) {
-//      Toast.makeText(GlobalConfig.CONTEXT, thr.getMessage() + "详见logcat", Toast.LENGTH_SHORT)
-//          .show();
-//    }
   }
 
   /**

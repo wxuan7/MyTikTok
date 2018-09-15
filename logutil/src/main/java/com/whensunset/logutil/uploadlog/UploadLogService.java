@@ -14,24 +14,18 @@ import com.whensunset.logutil.uploadlog.policy.UploadLogPolicyChangedCallback;
 import com.whensunset.logutil.uploadlog.sender.UploadLogHandler;
 import com.whensunset.logutil.uploadlog.storage.UploadLogStorage;
 
-public class UploadUploadLogService extends Service implements UploadLogPolicyChangedCallback {
-
+public class UploadLogService extends Service implements UploadLogPolicyChangedCallback {
+  
   public static final String KEY_LOG = "log";
-  public static final String KEY_PAGE = "keyPage";
-  public static final String KEY_DESTROY_PAGE = "destroyCreate";
-  public static final String KEY_BEFORE_PAGE_CREATE = "beforePageCreate";
   public static final String KEY_REAL_TIME = "realTime";
-  public static final String KEY_START_PAGE = "startPage";
-  public static final String KEY_STOP_PAGE = "stopPage";
-  private static final String TAG = "log.UploadUploadLogService";
-  private static final boolean DEBUG = true;
-
+  private static final String TAG = "@UploadLogService";
+  
   private UploadLogStorage mStorage;
   private Handler mWorkHandler;
   private UploadLogHandler mUploadLogHandler;
-  
+  private UploadLogConfiguration mUploadLogConfiguration;
   private volatile UploadLogPolicy mUploadLogPolicy = UploadLogPolicy.DEFAULT;
-
+  
   private UploadLogBinder.Stub mStub = new UploadLogBinder.Stub() {
     @Override
     /**
@@ -41,79 +35,75 @@ public class UploadUploadLogService extends Service implements UploadLogPolicyCh
       addLog(content, realTime);
     }
   };
-
+  
   @Override
   public void onCreate() {
     super.onCreate();
-
+    
     HandlerThread thread = new HandlerThread("log-manager", Process.THREAD_PRIORITY_BACKGROUND);
     thread.start();
     if (mWorkHandler == null) {
       mWorkHandler = new Handler(thread.getLooper());
-      final UploadLogConfiguration configuration = UploadLogManager.CONFIGURATION;
-      mWorkHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          mStorage = null;// todo 未来确定了本地数据库之后，需要写一个实现来储存日志
-          mUploadLogHandler = null;// todo 未来确定了网络框架之后，需要写一个来上传日志
+      mUploadLogConfiguration = UploadLogManager.CONFIGURATION;
+      mWorkHandler.post(() -> {
+        mStorage = null;// todo 未来确定了本地数据库之后，需要写一个实现来储存日志
+        mUploadLogHandler = null;// todo 未来确定了网络框架之后，需要写一个来上传日志
+      });
+    }
+  }
+  
+  private void addLog(final byte[] logContent, final boolean realTime) {
+    if (logContent == null) {
+      return;
+    }
+    if (realTime && mUploadLogPolicy.getUploadPolicy() != UploadLogPolicy.Upload.NONE) {
+      // 如果是实时 Log. 将任务放到队首立马执行
+      mWorkHandler.postAtFrontOfQueue(() -> {
+        try {
+          Object reportEvent = new Object();// todo 未来确定了日志结构之后，再初始化
+          
+          // 主动添加一次获取当前 id
+          long id = mStorage.addLog(reportEvent);
+          // 删除掉当前 id
+          mStorage.deleteLog(id);
+          
+          Object[] logs = {reportEvent};
+          mUploadLogHandler.sendRealLog(logs);
+        } catch (Exception ignored) {
+          // 日志不能影响 app 的运行，所以忽略日志发生的异常
+        }
+      });
+    } else {
+      mWorkHandler.post(() -> {
+        try {
+          Object reportEvent = new Object();// todo 未来确定了日志结构之后，再初始化
+          mStorage.addLog(reportEvent);
+        } catch (Exception ignored) {
+          // 日志不能影响 app 的运行，所以忽略日志发生的异常
         }
       });
     }
   }
-
-  private void addLog(final byte[] logContent, final boolean realTime) {
-    if (logContent != null) {
-      if (realTime && mUploadLogPolicy.getUploadPolicy() != UploadLogPolicy.Upload.NONE) {
-        // 如果是实时 Log. 将任务放到队首立马执行
-        mWorkHandler.postAtFrontOfQueue(new Runnable() {
-          @Override
-          public void run() {
-            try {
-              Object reportEvent = null;// todo 未来确定了日志结构之后，再初始化
-        
-              // 主动添加一次获取当前 id
-              long id = mStorage.addLog(reportEvent);
-              // 删除掉当前 id
-              mStorage.deleteLog(id);
-
-              Object batchReportEvent = null;// todo 未来确定了日志结构之后，再初始化
-              mUploadLogHandler.sendRealLog(batchReportEvent);
-            } catch (Exception e) {}
-          }
-        });
-      } else {
-        mWorkHandler.post(new Runnable() {
-          @Override
-          public void run() {
-            try {
-              Object reportEvent = null;// todo 未来确定了日志结构之后，再初始化
-              mStorage.addLog(reportEvent);
-            } catch (Exception e) {}
-          }
-        });
-      }
-    }
-  }
-
+  
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
     if (intent == null) {
       return START_STICKY;
     }
-
+    
     /**
-     * 这里是做一层保险，防止 binder 失效的时候，通过 {@link startService() 的方式添加 log}
+     * 这里是做一层保险，在binder 失效的时候，通过 {@link startService() 的方式添加 log}
      */
     addLog(intent.getByteArrayExtra(KEY_LOG), intent.getBooleanExtra(KEY_REAL_TIME, false));
-
+    
     return START_STICKY;
   }
-
+  
   @Override
   public IBinder onBind(Intent intent) {
     return mStub;
   }
-
+  
   @Override
   public void onLogPolicyChanged(UploadLogPolicy policy) {
     if (mUploadLogPolicy == policy) {
@@ -127,7 +117,7 @@ public class UploadUploadLogService extends Service implements UploadLogPolicyCh
     }
     mUploadLogPolicy = policy;
   }
-
+  
   @Override
   public void onSendIntervalChanged(long interval) {
     mUploadLogHandler.setUploadIntervalMs(interval);

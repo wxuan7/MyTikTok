@@ -1,8 +1,5 @@
 package com.whensunset.annotation_processing.field;
 
-import com.whensunset.annotation_processing.util.AptUtils;
-import com.whensunset.annotation_processing.util.BaseProcessor;
-import com.whensunset.annotation_processing.util.SortedElement;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
@@ -12,10 +9,13 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
-import com.whensunset.annotation.field.Fetcher;
-import com.whensunset.annotation.field.Fetchers;
 import com.whensunset.annotation.field.Field;
+import com.whensunset.annotation.field.FieldGetter;
+import com.whensunset.annotation.field.FieldGetters;
 import com.whensunset.annotation.inject.ProviderHolder;
+import com.whensunset.annotation_processing.util.BaseProcessor;
+import com.whensunset.annotation_processing.util.SortedElement;
+import com.whensunset.annotation_processing.util.Util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,9 +36,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.MirroredTypeException;
-import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 
@@ -53,9 +50,9 @@ public class FieldProcessor extends BaseProcessor {
   private boolean mHasProcessed;
   private String mPackage;
   private String mClassName;
-
+  
   private DuplicationChecker mChecker = new DuplicationChecker();
-
+  
   @Override
   public synchronized void init(ProcessingEnvironment processingEnv) {
     super.init(processingEnv);
@@ -68,20 +65,20 @@ public class FieldProcessor extends BaseProcessor {
     mClassName = fullName.substring(lastDot + 1);
     mPackage = fullName.substring(0, lastDot);
   }
-
+  
   @Override
   public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnv) {
     if (mHasProcessed) {
       return false;
     }
     AnnotationSpec invokeBy =
-        AptUtils.invokeBy(ClassName.get(Fetchers.class),
-            CodeBlock.of("$T.INVOKER_ID", Fetchers.class));
+        Util.invokeBy(ClassName.get(FieldGetters.class),
+            CodeBlock.of("$T.INVOKER_ID", FieldGetters.class));
     MethodSpec.Builder init =
         MethodSpec.methodBuilder("init")
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL, Modifier.STATIC)
             .addAnnotation(invokeBy);
-    TypeSpec.Builder fetcherInitClass =
+    TypeSpec.Builder feildGetterInitClass =
         TypeSpec.classBuilder(mClassName)
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
     SortedElement sortedElement = SortedElement.fromRoundEnv(roundEnv, Field.class);
@@ -90,20 +87,20 @@ public class FieldProcessor extends BaseProcessor {
       if (fields == null) {
         continue;
       }
-      generateForClass(mGeneratedAnnotation, init, type.getKey(), fields);
+      generateForClass(init, type.getKey(), fields);
     }
-    fetcherInitClass.addMethod(init.build());
-    writeClass(mPackage, mClassName, fetcherInitClass);
+    feildGetterInitClass.addMethod(init.build());
+    writeClass(mPackage, mClassName, feildGetterInitClass);
     mHasProcessed = true;
     return false;
   }
   
-  private void generateForClass(AnnotationSpec generated, MethodSpec.Builder init,
-      Element rootClass, List<Element> elements) {
+  private void generateForClass(MethodSpec.Builder init,
+                                Element rootClass, List<Element> elements) {
     if (rootClass == null || rootClass.getKind() != ElementKind.CLASS) {
       return;
     }
-    String className = rootClass.getSimpleName().toString() + "Fetcher";
+    String className = rootClass.getSimpleName().toString() + "FieldGetter";
     className = className.replace("$", "_");
     TypeName rootType = TypeName.get(mTypes.erasure(rootClass.asType()));
     TypeName fieldNamesType =
@@ -112,15 +109,15 @@ public class FieldProcessor extends BaseProcessor {
         ParameterizedTypeName.get(ClassName.get(Set.class), TypeName.get(Class.class));
     TypeName allFieldsReturn =
         ParameterizedTypeName.get(ClassName.get(Set.class), TypeName.get(Object.class));
-    TypeName fetcherType = ParameterizedTypeName.get(ClassName.get(Fetcher.class),
+    TypeName fieldGetterType = ParameterizedTypeName.get(ClassName.get(FieldGetter.class),
         rootType);
-    TypeSpec.Builder fetcherClass =
+    TypeSpec.Builder fieldGetterClass =
         TypeSpec.classBuilder(className)
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
             .addField(fieldNamesType, "mAccessibleNames", Modifier.PRIVATE, Modifier.FINAL)
             .addField(fieldTypesType, "mAccessibleTypes", Modifier.PRIVATE, Modifier.FINAL)
-            .addField(Fetcher.class, "mSuperFetcher", Modifier.PRIVATE)
-            .addSuperinterface(fetcherType);
+            .addField(FieldGetter.class, "mSuperFieldGetter", Modifier.PRIVATE)
+            .addSuperinterface(fieldGetterType);
     MethodSpec.Builder constructor = MethodSpec.constructorBuilder()
         .addModifiers(Modifier.PUBLIC)
         .addStatement("mAccessibleNames = new $T<$T>()", HashSet.class, String.class)
@@ -143,18 +140,6 @@ public class FieldProcessor extends BaseProcessor {
         .addParameter(rootType, "target")
         .returns(allFieldsReturn)
         .addStatement("$T result = new $T()", allFieldsReturn, HashSet.class);
-    MethodSpec.Builder getByTypeMethod = MethodSpec.methodBuilder("get")
-        .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-        .addTypeVariable(typeT)
-        .addParameter(rootType, "target")
-        .addParameter(Class.class, "tClass")
-        .returns(typeT);
-    MethodSpec.Builder setByTypeMethod = MethodSpec.methodBuilder("set")
-        .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-        .addTypeVariable(typeT)
-        .addParameter(rootType, "target")
-        .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), typeT), "tClass")
-        .addParameter(typeT, "value");
     MethodSpec.Builder allFieldNames = MethodSpec.methodBuilder("allFieldNames")
         .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
         .addParameter(rootType, "target")
@@ -167,95 +152,81 @@ public class FieldProcessor extends BaseProcessor {
         .addStatement("$T result = new $T<$T>(mAccessibleTypes)", fieldTypesType, HashSet.class,
             Class.class)
         .returns(fieldTypesType);
-
+    
     for (Element field : elements) {
       if (field.getKind() != ElementKind.FIELD || field.getModifiers().contains(Modifier.STATIC)) {
         continue;
       }
-      genByField(constructor, getByNameMethod, setByNameMethod, getByTypeMethod, setByTypeMethod,
+      genByField(constructor, getByNameMethod, setByNameMethod,
           allFields, field, rootClass.asType());
-      checkForAdditionalFetch(getByNameMethod, setByNameMethod, getByTypeMethod, setByTypeMethod,
+      checkForAdditionalGet(getByNameMethod, setByNameMethod,
           allFields, allFieldNames, allTypes, field, typeT);
     }
-    getByNameMethod.addStatement("return (T) mSuperFetcher.get(target, fieldName)");
-    getByTypeMethod.addStatement("return (T) mSuperFetcher.get(target, tClass)");
-    setByNameMethod.addStatement("mSuperFetcher.set(target, fieldName, value)");
-    setByTypeMethod.addStatement("mSuperFetcher.set(target, tClass, value)");
+    getByNameMethod.addStatement("return (T) mSuperFieldGetter.get(target, fieldName)");
+    setByNameMethod.addStatement("mSuperFieldGetter.set(target, fieldName, value)");
     allFields
-        .addStatement("result.addAll(mSuperFetcher.allFields(target))")
+        .addStatement("result.addAll(mSuperFieldGetter.allFields(target))")
         .addStatement("return result");
     allFieldNames
-        .addStatement("result.addAll(mSuperFetcher.allFieldNames(target))")
+        .addStatement("result.addAll(mSuperFieldGetter.allFieldNames(target))")
         .addStatement("return result");
     allTypes
-        .addStatement("result.addAll(mSuperFetcher.allTypes(target))")
+        .addStatement("result.addAll(mSuperFieldGetter.allTypes(target))")
         .addStatement("return result");
-    fetcherClass
+    fieldGetterClass
         .addMethod(constructor.build())
-        .addMethod(buildInit(fetcherType, rootType))
+        .addMethod(buildInit(fieldGetterType, rootType))
         .addMethod(getByNameMethod.build())
         .addMethod(setByNameMethod.build())
-        .addMethod(getByTypeMethod.build())
-        .addMethod(setByTypeMethod.build())
         .addMethod(allFieldNames.build())
         .addMethod(allTypes.build())
         .addMethod(allFields.build());
     String pkg = mUtils.getPackageOf(rootClass).toString();
-    writeClass(pkg, className, fetcherClass);
-    init.addStatement("$T.put($T.class, new $T())", Fetchers.class,
+    writeClass(pkg, className, fieldGetterClass);
+    init.addStatement("$T.put($T.class, new $T())", FieldGetters.class,
         mTypes.erasure(rootClass.asType()), ClassName.get(pkg, className));
   }
-
-  private void checkForAdditionalFetch(MethodSpec.Builder getByNameMethod,
-      MethodSpec.Builder setByNameMethod, MethodSpec.Builder getByTypeMethod,
-      MethodSpec.Builder setByTypeMethod, MethodSpec.Builder allFields,
-      MethodSpec.Builder allFieldNames, MethodSpec.Builder allTypes, Element field,
-      TypeVariableName typeT) {
+  
+  private void checkForAdditionalGet(MethodSpec.Builder getByNameMethod,
+                                     MethodSpec.Builder setByNameMethod, MethodSpec.Builder allFields,
+                                     MethodSpec.Builder allFieldNames, MethodSpec.Builder allTypes, Element field,
+                                     TypeVariableName typeT) {
     if (!Optional.ofNullable(field.getAnnotation(Field.class))
-        .map(Field::doAdditionalFetch).orElse(false)) {
+        .map(Field::doAdditionalGet).orElse(false)) {
       return;
     }
     String fieldName = field.getSimpleName().toString();
-    getByNameMethod.addStatement("$T result$L = ($T) $T.fetch(target.$L, fieldName)", typeT,
+    getByNameMethod.addStatement("$T result$L = ($T) $T.get(target.$L, fieldName)", typeT,
         fieldName, typeT, ProviderHolder.class, fieldName);
     getByNameMethod.addCode("if(result$L != null) {\n" +
         "return result$L;\n"
         + "}\n", fieldName, fieldName);
     setByNameMethod.addStatement("$T.set(target.$L, fieldName, value)", ProviderHolder.class,
         fieldName);
-
-    getByTypeMethod.addStatement("$T result$L = ($T) $T.fetch(target.$L, tClass)", typeT,
-        fieldName, typeT, ProviderHolder.class, fieldName);
-    getByTypeMethod.addCode("if(result$L != null) {\n" +
-        "return result$L;\n"
-        + "}\n", fieldName, fieldName);
-    setByTypeMethod.addStatement("$T.set(target.$L, tClass, value)", ProviderHolder.class,
-        fieldName);
-
+    
     allFieldNames.addStatement("result.addAll($T.allFieldNames(target.$L))", ProviderHolder.class,
         fieldName);
     allTypes.addStatement("result.addAll($T.allTypes(target.$L))", ProviderHolder.class, fieldName);
     allFields.addStatement("result.addAll($T.allFields(target.$L))", ProviderHolder.class,
         fieldName);
   }
-
-  private MethodSpec buildInit(TypeName fetcherType, TypeName rootType) {
-    String loopCode = "if(mSuperFetcher != null){\n" +
+  
+  private MethodSpec buildInit(TypeName fieldGetterType, TypeName rootType) {
+    String loopCode = "if(mSuperFieldGetter != null){\n" +
         "  return this;\n" +
         "}\n" +
-        "mSuperFetcher = $T.superFetcherNonNull($T.class);\n" +
+        "mSuperFieldGetter = $T.superFieldGetterOrNoop($T.class);\n" +
         "return this;\n";
     return MethodSpec.methodBuilder("init")
         .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-        .addCode(loopCode, Fetchers.class, rootType)
-        .returns(fetcherType)
+        .addCode(loopCode, FieldGetters.class, rootType)
+        .returns(fieldGetterType)
         .build();
   }
-
+  
   private void genByField(MethodSpec.Builder constructor, MethodSpec.Builder getByNameMethod,
-      MethodSpec.Builder setByNameMethod, MethodSpec.Builder getByTypeMethod,
-      MethodSpec.Builder setByTypeMethod, MethodSpec.Builder allFields,
-      Element field, TypeMirror rootClass) {
+                          MethodSpec.Builder setByNameMethod, MethodSpec.Builder allFields,
+                          Element field, TypeMirror rootClass) {
     Field fieldAnnotation = field.getAnnotation(Field.class);
     if (fieldAnnotation == null) {
       return;
@@ -263,10 +234,9 @@ public class FieldProcessor extends BaseProcessor {
     String fieldKey = fieldAnnotation.value();
     String fieldName = field.getSimpleName().toString();
     if ("".equals(fieldKey)) {
-      fetchByType(constructor, getByTypeMethod, setByTypeMethod, field, fieldAnnotation, fieldName);
-      mChecker.onField(field.asType(), rootClass);
+      throw new RuntimeException("字段的 key 是必填项!");
     } else {
-      fetchByName(constructor, getByNameMethod, setByNameMethod, field, fieldKey, fieldName);
+      getByName(constructor, getByNameMethod, setByNameMethod, field, fieldKey, fieldName);
       mChecker.onField(fieldKey, rootClass);
     }
     TypeMirror fieldType = mTypes.erasure(field.asType());
@@ -279,42 +249,9 @@ public class FieldProcessor extends BaseProcessor {
           .endControlFlow();
     }
   }
-
-  private void fetchByType(MethodSpec.Builder constructor, MethodSpec.Builder getByTypeMethod,
-                           MethodSpec.Builder setByTypeMethod, Element field, Field fieldAnnotation, String fieldName) {
-    TypeMirror rawType = field.asType();
-    try {
-      fieldAnnotation.asClass();
-    } catch (MirroredTypeException e) {
-      TypeMirror typeMirror = e.getTypeMirror();
-      if (!typeMirror.toString().equals(Object.class.getName())) {
-        rawType = typeMirror;
-      }
-    }
-    if (rawType.getKind() == TypeKind.DECLARED) {
-      if (!((DeclaredType) rawType).getTypeArguments().isEmpty()) {
-        mMessager.printMessage(Diagnostic.Kind.WARNING, "泛型类型不能按类型存取 " + fieldName);
-        return;
-      }
-    }
-    TypeMirror fieldType = mTypes.erasure(rawType);
-    TypeName fieldTypeName = TypeName.get(fieldType);
-    if (fieldTypeName.isPrimitive()) {
-      mMessager.printMessage(Diagnostic.Kind.WARNING, "primitive 类型不能按类型存取 " + fieldName);
-      return;
-    }
-    getByTypeMethod.beginControlFlow("if (tClass == $T.class)", fieldType)
-        .addStatement("return (T)target.$L", fieldName)
-        .endControlFlow();
-    setByTypeMethod.beginControlFlow("if (tClass == $T.class)", fieldType)
-        .addStatement("target.$L = ($T)value", fieldName, fieldType)
-        .addStatement("return")
-        .endControlFlow();
-    constructor.addStatement("mAccessibleTypes.add($T.class)", fieldType);
-  }
-
-  private void fetchByName(MethodSpec.Builder constructor, MethodSpec.Builder getByNameMethod,
-                           MethodSpec.Builder setByNameMethod, Element field, String fieldKey, String fieldName) {
+  
+  private void getByName(MethodSpec.Builder constructor, MethodSpec.Builder getByNameMethod,
+                         MethodSpec.Builder setByNameMethod, Element field, String fieldKey, String fieldName) {
     TypeMirror fieldType = mTypes.erasure(field.asType());
     TypeName fieldTypeName = TypeName.get(fieldType);
     if (fieldTypeName.isPrimitive()) {
@@ -336,11 +273,11 @@ public class FieldProcessor extends BaseProcessor {
     }
     constructor.addStatement("mAccessibleNames.add(\"$L\")", fieldKey);
   }
-
+  
   private final class DuplicationChecker {
     private Map<String, List<TypeMirror>> mFieldNameMapping = new HashMap<>();
     private Map<TypeMirror, List<TypeMirror>> mFieldTypeMapping = new HashMap<>();
-
+    
     public void onField(String fieldName, TypeMirror type) {
       List<TypeMirror> mirrors =
           mFieldNameMapping.computeIfAbsent(fieldName, k -> new ArrayList<>());
@@ -349,21 +286,6 @@ public class FieldProcessor extends BaseProcessor {
         if (mTypes.isSubtype(existing, type) || mTypes.isSubtype(type, existing)) {
           mMessager.printMessage(Diagnostic.Kind.ERROR,
               "Field key " + fieldName + " 在定义中冲突，类：" + type.toString() + "与类："
-                  + existing.toString());
-          return;
-        }
-      }
-      mirrors.add(mTypes.erasure(type));
-    }
-
-    public void onField(TypeMirror fieldType, TypeMirror type) {
-      List<TypeMirror> mirrors =
-          mFieldTypeMapping.computeIfAbsent(fieldType, k -> new ArrayList<>());
-      type = mTypes.erasure(type);
-      for (TypeMirror existing : mirrors) {
-        if (mTypes.isSubtype(existing, type) || mTypes.isSubtype(type, existing)) {
-          mMessager.printMessage(Diagnostic.Kind.ERROR,
-              "Field 类型" + fieldType.toString() + "在定义中冲突，类：" + type.toString() + "与类："
                   + existing.toString());
           return;
         }

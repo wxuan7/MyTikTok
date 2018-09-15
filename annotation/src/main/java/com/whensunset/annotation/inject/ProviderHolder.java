@@ -3,45 +3,33 @@ package com.whensunset.annotation.inject;
 import java.util.Set;
 
 public final class ProviderHolder {
-  private static ObjectProvider sObjectProvider;
-
-  public static void setProvider(ObjectProvider objectProvider) {
-    sObjectProvider = objectProvider;
+  private static FieldProvider FIELD_PROVIDER;
+  
+  public static void setProvider(FieldProvider fieldProvider) {
+    FIELD_PROVIDER = fieldProvider;
   }
-
-  public static <F, T> T fetch(F target, Class<T> tClass) {
-    return sObjectProvider.fetch(target, tClass);
+  
+  public static <F, T> T get(F target, String fieldName) {
+    return FIELD_PROVIDER.get(target, fieldName);
   }
-
-  public static <F, T> T fetch(F target, String fieldName) {
-    return sObjectProvider.fetch(target, fieldName);
-  }
-
+  
   public static <F> boolean have(F obj, String fieldName) {
-    return sObjectProvider.have(obj, fieldName);
+    return FIELD_PROVIDER.have(obj, fieldName);
   }
-
-  public static <F> boolean have(F obj, Class tClass) {
-    return sObjectProvider.have(obj, tClass);
-  }
-
+  
   public static <F, T> void set(F obj, String fieldName, T value) {
-    sObjectProvider.set(obj, fieldName, value);
+    FIELD_PROVIDER.set(obj, fieldName, value);
   }
-
-  public static <F, T> void set(F obj, Class tClass, T value) {
-    sObjectProvider.set(obj, tClass, value);
-  }
-
+  
   public static Set<String> allFieldNames(Object obj) {
-    return sObjectProvider.allFieldNames(obj);
+    return FIELD_PROVIDER.allFieldNames(obj);
   }
-
+  
   public static Set<Class> allTypes(Object obj) {
-    return sObjectProvider.allTypes(obj);
+    return FIELD_PROVIDER.allTypes(obj);
   }
-
+  
   public static Set<Object> allFields(Object obj) {
-    return sObjectProvider.allDirectFields(obj);
+    return FIELD_PROVIDER.allDirectFields(obj);
   }
 }

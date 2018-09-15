@@ -12,5 +12,5 @@ public @interface Field {
 
   Class asClass() default Object.class;
 
-  boolean doAdditionalFetch() default false;
+  boolean doAdditionalGet() default false;
 }

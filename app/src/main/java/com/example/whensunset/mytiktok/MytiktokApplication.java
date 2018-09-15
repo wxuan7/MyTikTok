@@ -2,9 +2,9 @@ package com.example.whensunset.mytiktok;
 
 import android.app.Application;
 
-import com.whensunset.annotation.field.Fetchers;
+import com.whensunset.annotation.field.FieldGetters;
+import com.whensunset.annotation.inject.FieldProviderImpl;
 import com.whensunset.annotation.inject.Injectors;
-import com.whensunset.annotation.inject.ObjectProviderImpl;
 import com.whensunset.annotation.inject.ProviderHolder;
 
 /**
@@ -16,7 +16,7 @@ public class MytiktokApplication extends Application {
   public void onCreate() {
     super.onCreate();
     Injectors.init();
-    Fetchers.init();
-    ProviderHolder.setProvider(new ObjectProviderImpl());
+    FieldGetters.init();
+    ProviderHolder.setProvider(new FieldProviderImpl());
   }
 }

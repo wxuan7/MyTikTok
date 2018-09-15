@@ -1,13 +1,11 @@
 package com.whensunset.annotation_processing.util;
 
-import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
 import java.io.Writer;
 
-import javax.annotation.Generated;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
@@ -21,8 +19,6 @@ public abstract class BaseProcessor extends AbstractProcessor {
   protected Types mTypes;
   protected Messager mMessager;
 
-  protected AnnotationSpec mGeneratedAnnotation;
-
   @Override
   public synchronized void init(ProcessingEnvironment processingEnv) {
     super.init(processingEnv);
@@ -30,9 +26,6 @@ public abstract class BaseProcessor extends AbstractProcessor {
     mUtils = processingEnv.getElementUtils();
     mTypes = processingEnv.getTypeUtils();
     mMessager = processingEnv.getMessager();
-    mGeneratedAnnotation = AnnotationSpec.builder(Generated.class)
-        .addMember("value", "$S", getClass().getName())
-        .build();
   }
 
   protected void writeClass(String pkg, String name, TypeSpec.Builder type) {

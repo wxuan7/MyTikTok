@@ -10,9 +10,8 @@ public interface UploadLogHandler {
   /**
    * 发送实时日志.
    * 
-   * @param batchReportEvent
    */
-  void sendRealLog(final Object batchReportEvent);
+  void sendRealLog(final Object[] logs);
 
   void setUploadPolicy(UploadLogPolicy.Upload policy);
   
