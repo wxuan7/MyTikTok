@@ -212,7 +212,7 @@ public class FieldProcessor extends BaseProcessor {
       MethodSpec.Builder allFieldNames, MethodSpec.Builder allTypes, Element field,
       TypeVariableName typeT) {
     if (!Optional.ofNullable(field.getAnnotation(Field.class))
-        .map(annotation -> annotation.doAdditionalFetch()).orElse(false)) {
+        .map(Field::doAdditionalFetch).orElse(false)) {
       return;
     }
     String fieldName = field.getSimpleName().toString();
@@ -240,7 +240,6 @@ public class FieldProcessor extends BaseProcessor {
   }
 
   private MethodSpec buildInit(TypeName fetcherType, TypeName rootType) {
-    // 丑又没办法的代码
     String loopCode = "if(mSuperFetcher != null){\n" +
         "  return this;\n" +
         "}\n" +
@@ -294,7 +293,6 @@ public class FieldProcessor extends BaseProcessor {
     }
     if (rawType.getKind() == TypeKind.DECLARED) {
       if (!((DeclaredType) rawType).getTypeArguments().isEmpty()) {
-        // 对于无泛型的Map、List并不识别
         mMessager.printMessage(Diagnostic.Kind.WARNING, "泛型类型不能按类型存取 " + fieldName);
         return;
       }

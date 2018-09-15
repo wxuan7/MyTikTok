@@ -14,7 +14,7 @@ public class MainActivity extends AppCompatActivity {
   @Field("mTextString")
   String mTextString = "mTextString";
   
-  @Field("mImage")
+  @Field(value = "mImage" , doAdditionalFetch = true)
   Drawable mImage;
   
   Presenter mPresenter;

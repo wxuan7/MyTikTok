@@ -1,7 +1,6 @@
 package com.whensunset.annotation.inject;
 
 import com.whensunset.annotation.invoker.ForInvoker;
-import com.google.common.base.Optional;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,19 +30,20 @@ public class Injectors {
 
     }
   };
-  private static final Map<Class, Injector> sInjectors = new HashMap<>();
+  private static final Map<Class, Injector> INJECTOR_MAP = new HashMap<>();
 
   public static void putAll(Map<Class, Injector> map) {
-    sInjectors.putAll(map);
+    INJECTOR_MAP.putAll(map);
   }
 
   public static void put(Class clazz, Injector injector) {
-    sInjectors.put(clazz, injector);
+    INJECTOR_MAP.put(clazz, injector);
   }
 
   @Nonnull
   public static Injector injector(Class clazz) {
-    return Optional.fromNullable(sInjectors.get(clazz)).or(NOOP);
+    Injector injector = INJECTOR_MAP.get(clazz);
+    return (injector == null ? NOOP : injector);
   }
 
   @ForInvoker(methodId = INVOKER_ID)

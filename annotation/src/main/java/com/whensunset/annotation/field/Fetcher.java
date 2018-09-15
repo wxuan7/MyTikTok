@@ -13,13 +13,6 @@ public interface Fetcher<I> {
 
   <T> void set(I target, Class<T> tClass, T value);
 
-  default <T> void set(I target, T value) {
-    if (value == null) {
-      return;
-    }
-    set(target, (Class<T>) value.getClass(), value);
-  }
-
   Set<Object> allFields(I target);
 
   Set<String> allFieldNames(I target);

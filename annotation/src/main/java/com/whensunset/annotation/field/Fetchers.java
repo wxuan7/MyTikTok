@@ -1,6 +1,5 @@
 package com.whensunset.annotation.field;
 
-import com.google.common.base.Optional;
 import com.whensunset.annotation.invoker.ForInvoker;
 
 import java.util.Collections;
@@ -54,22 +53,23 @@ public class Fetchers {
       return Collections.emptySet();
     }
   };
-  public static final Map<Class, Fetcher> sFetchers = new HashMap<>();
+  
+  private static final Map<Class, Fetcher> FETCHER_MAP = new HashMap<>();
 
   public static void putAll(Map<Class, Fetcher> map) {
-    sFetchers.putAll(map);
+    FETCHER_MAP.putAll(map);
   }
 
   public static void put(Class clazz, Fetcher fetcher) {
-    sFetchers.put(clazz, fetcher);
+    FETCHER_MAP.put(clazz, fetcher);
   }
 
   public static Fetcher fetcher(Class clazz) {
-    Fetcher fetcher = sFetchers.get(clazz);
+    Fetcher fetcher = FETCHER_MAP.get(clazz);
     if (fetcher == null) {
       fetcher = findSuperFetcher(clazz);
       if (fetcher != null) {
-        sFetchers.put(clazz, fetcher);
+        FETCHER_MAP.put(clazz, fetcher);
       }
     }
     return fetcher == null ? null : fetcher.init();
@@ -77,13 +77,14 @@ public class Fetchers {
 
   @Nonnull
   public static Fetcher fetcherNonNull(Class clazz) {
-    return Optional.fromNullable(fetcher(clazz)).or(NOOP);
+    Fetcher fetcher = fetcher(clazz);
+    return (fetcher == null ? NOOP : fetcher);
   }
 
   public static Fetcher findSuperFetcher(Class clazz) {
     clazz = clazz.getSuperclass();
     while (clazz != null) {
-      Fetcher fetcher = sFetchers.get(clazz);
+      Fetcher fetcher = FETCHER_MAP.get(clazz);
       if (fetcher != null) {
         return fetcher.init();
       }
@@ -94,7 +95,8 @@ public class Fetchers {
 
   @Nonnull
   public static Fetcher superFetcherNonNull(Class clazz) {
-    return Optional.fromNullable(findSuperFetcher(clazz)).or(NOOP);
+    Fetcher fetcher = findSuperFetcher(clazz);
+    return (fetcher == null ? NOOP : fetcher);
   }
 
   @ForInvoker(methodId = INVOKER_ID)
