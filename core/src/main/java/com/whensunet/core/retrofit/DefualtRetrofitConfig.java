@@ -23,11 +23,11 @@ import okhttp3.OkHttpClient;
 import retrofit2.Call;
 
 public class DefualtRetrofitConfig implements RetrofitConfig {
-
+  
   public static final int DEFAULT_UPLOAD_TIMEOUT_S = 60;
   public static final int DEFAULT_TIMEOUT_S = 15;
   private static final Random RANDOM = new Random();
-
+  
   
   private static OkHttpClient sApiClient;
   private static OkHttpClient sUploadClient;
@@ -44,29 +44,29 @@ public class DefualtRetrofitConfig implements RetrofitConfig {
     mScheduler = scheduler;
     mRetryTimesValid = sApiRetryTimes > 0 && sApiRetryTimes <= 10;
   }
-
+  
   @Override
   public Scheduler getExecuteScheduler() {
     return mScheduler;
   }
-
+  
   @Override
   public Gson buildGson() {
     return Gsons.GSON;
   }
-
+  
   @Override
   public Params buildParams() {
     return new DefaultParams();
   }
-
+  
   @Override
   public String buildBaseUrl() {
     return "";
   }
-
+  
   private OkHttpClient.Builder createOkHttpClientBuilder(int timeout) {
-
+    
     return new OkHttpClient.Builder()
         .connectTimeout(timeout, TimeUnit.SECONDS)
         .readTimeout(timeout, TimeUnit.SECONDS)
@@ -77,7 +77,7 @@ public class DefualtRetrofitConfig implements RetrofitConfig {
         .addInterceptor(new TimeoutInterceptor())
         .addInterceptor(new ConfigParamsInterceptor(buildParams()));
   }
-
+  
   @Override
   public OkHttpClient buildClient() {
     if (isUpload) {
@@ -86,35 +86,35 @@ public class DefualtRetrofitConfig implements RetrofitConfig {
       }
       return sUploadClient;
     }
-
+    
     if (sApiClient == null) {
       OkHttpClient.Builder apiClientBuilder = createOkHttpClientBuilder(DEFAULT_TIMEOUT_S);
       sApiClient = apiClientBuilder.build();
     }
-
+    
     return sApiClient;
   }
-
-
+  
+  
   @Override
   public Call<Object> buildCall(Call<Object> call) {
     return call;
   }
-
+  
   public static OkHttpClient getClient() {
     return sApiClient;
   }
-
+  
   @Override
   public Observable<?> buildObservable(Observable<?> input, Call<Object> call,
-      Annotation[] annotations) {
+                                       Annotation[] annotations) {
     // 先切到主线程
     Observable<?> observable = input.observeOn(RetrofitSchedulers.MAIN)
         .doOnComplete(NetworkCounter.ON_COMPLETE)
         .doOnError(NetworkCounter.ON_ERROR)
         // 处理Throttling(防止ddos)
         .doOnNext(new ThrottlingConsumer());
-
+    
     return observable;
   }
 }

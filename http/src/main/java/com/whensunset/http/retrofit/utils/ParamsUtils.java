@@ -7,7 +7,7 @@ import com.whensunset.http.retrofit.RetrofitConfig;
 import java.util.Map;
 
 public class ParamsUtils {
-
+  
   public static Pair<Map<String, String>, Map<String, String>> obtainParams(
       RetrofitConfig.Params config, Map<String, String> params,
       boolean get) {
@@ -27,10 +27,10 @@ public class ParamsUtils {
       urlParams.putAll(bodyParams);
       bodyParams.clear();
     }
-
+    
     return new Pair<>(urlParams, bodyParams);
   }
-
+  
   // 对一些参数做修正, 目前仅处理了空参数
   private static void escapeParams(Map<String, String> urlParams, Map<String, String> bodyParams) {
     if (urlParams != null) {
@@ -42,7 +42,7 @@ public class ParamsUtils {
         }
       }
     }
-
+    
     if (bodyParams != null) {
       for (String key : bodyParams.keySet()) {
         String value = bodyParams.get(key);

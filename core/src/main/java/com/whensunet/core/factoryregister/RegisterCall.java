@@ -41,7 +41,7 @@ public class RegisterCall {
     public final Class<?> mImplementClass;
     public final Factory<?> mFactory;
     public final int mMinSdk;
-
+    
     public RegisterFactoryMapping(Class<?> implementClass, Factory<?> factory,
                                   int sdk) {
       mImplementClass = implementClass;

@@ -16,7 +16,7 @@ public class RetrofitServiceCreateCall {
   public static void initRetrofitService() {
     // 可以手写 factory ，也可以 用匿名的内部类
     SingletonCall.register(CaptureApiService.class, new CaptureApiServiceFactory());
-
+    
     SingletonCall.register(UserApiService.class, () -> RetrofitFactory
         .newBuilder(new DefualtRetrofitConfig(RetrofitSchedulers.NETWORKING))
         .build()

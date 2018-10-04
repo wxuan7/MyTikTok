@@ -10,13 +10,14 @@ import com.whensunset.annotation.singleton.Factory;
 
 public class SingletonCall {
   public static final String INVOKER_ID = "SINGLETON_CALL";
-  public static <T> void register(Class<T> implementClass, Factory<? extends T> factory ) {
+  
+  public static <T> void register(Class<T> implementClass, Factory<? extends T> factory) {
     RegisterCall.register(implementClass, factory, 1);
   }
-
+  
   @ForInvoker(methodId = INVOKER_ID)
   @InvokeBy(invokerClass = RegisterCall.class, methodId = RegisterCall.INVOKER_ID)
   public static void doRegister() {
-
+  
   }
 }

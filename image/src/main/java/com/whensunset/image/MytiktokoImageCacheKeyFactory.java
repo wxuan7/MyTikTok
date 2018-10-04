@@ -10,7 +10,7 @@ import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.Postprocessor;
 
 public class MytiktokoImageCacheKeyFactory implements CacheKeyFactory {
-
+  
   @Override
   public CacheKey getBitmapCacheKey(ImageRequest request, Object callerContext) {
     return new BitmapMemoryCacheKey(
@@ -22,7 +22,7 @@ public class MytiktokoImageCacheKeyFactory implements CacheKeyFactory {
         null,
         callerContext);
   }
-
+  
   @Override
   public CacheKey getPostprocessedBitmapCacheKey(ImageRequest request, Object callerContext) {
     final Postprocessor postprocessor = request.getPostprocessor();
@@ -44,18 +44,18 @@ public class MytiktokoImageCacheKeyFactory implements CacheKeyFactory {
         postprocessorName,
         callerContext);
   }
-
+  
   @Override
   public CacheKey getEncodedCacheKey(ImageRequest request, @Nullable Object callerContext) {
     return getEncodedCacheKey(request, request.getSourceUri(), callerContext);
   }
-
+  
   @Override
   public CacheKey getEncodedCacheKey(ImageRequest request, Uri sourceUri,
                                      Object callerContext) {
     return new SimpleCacheKeyWithContext(getCacheKeyForRequest(request), callerContext);
   }
-
+  
   private String getCacheKeyForRequest(ImageRequest request) {
     if (request instanceof MytiktokImageRequest) {
       return ((MytiktokImageRequest) request).getCacheKey();

@@ -24,7 +24,8 @@ public class SystemUtil {
   
   /**
    * 获取当前进程名称
-    * @param context
+   *
+   * @param context
    * @return
    */
   public static String getProcessName(Context context) {

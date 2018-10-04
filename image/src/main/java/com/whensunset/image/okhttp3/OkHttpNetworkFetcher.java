@@ -37,38 +37,38 @@ import okhttp3.ResponseBody;
  */
 public class OkHttpNetworkFetcher extends
     BaseNetworkFetcher<OkHttpNetworkFetcher.OkHttpNetworkFetchState> {
-
+  
   public static class OkHttpNetworkFetchState extends FetchState {
     public long submitTime;
     public long responseTime;
     public long fetchCompleteTime;
-
+    
     public OkHttpNetworkFetchState(
         Consumer<EncodedImage> consumer,
         ProducerContext producerContext) {
       super(consumer, producerContext);
     }
   }
-
+  
   private static final String TAG = "OkHttpNetworkFetchProducer";
   private static final String QUEUE_TIME = "queue_time";
   private static final String FETCH_TIME = "fetch_time";
   private static final String TOTAL_TIME = "total_time";
   private static final String IMAGE_SIZE = "image_size";
-
+  
   private final OkHttpClientSupplier mOkHttpClientSupplier;
-
+  
   public OkHttpNetworkFetcher(OkHttpClientSupplier supplier) {
     mOkHttpClientSupplier = supplier;
   }
-
+  
   @Override
   public OkHttpNetworkFetchState createFetchState(
       Consumer<EncodedImage> consumer,
       ProducerContext context) {
     return new OkHttpNetworkFetchState(consumer, context);
   }
-
+  
   @Override
   public void fetch(final OkHttpNetworkFetchState fetchState, final Callback callback) {
     fetchState.submitTime = SystemClock.elapsedRealtime();
@@ -80,7 +80,7 @@ public class OkHttpNetworkFetcher extends
         .build();
     final OkHttpClient client = getOkHttpClient(fetchState);
     final Call call = client.newCall(request);
-
+    
     fetchState.getContext().addCallbacks(
         new BaseProducerContextCallbacks() {
           @Override
@@ -89,14 +89,15 @@ public class OkHttpNetworkFetcher extends
               call.cancel();
             } else {
               client.dispatcher().executorService().execute(new Runnable() {
-                @Override public void run() {
+                @Override
+                public void run() {
                   call.cancel();
                 }
               });
             }
           }
         });
-
+    
     call.enqueue(
         new okhttp3.Callback() {
           @Override
@@ -109,7 +110,7 @@ public class OkHttpNetworkFetcher extends
                     new OkHttpException(response)), callback);
                 return;
               }
-
+              
               long contentLength = body.contentLength();
               if (contentLength < 0) {
                 contentLength = 0;
@@ -125,19 +126,19 @@ public class OkHttpNetworkFetcher extends
               }
             }
           }
-
+          
           @Override
           public void onFailure(Call call, IOException e) {
             handleException(call, e, callback);
           }
         });
   }
-
+  
   @Override
   public void onFetchCompletion(OkHttpNetworkFetchState fetchState, int byteSize) {
     fetchState.fetchCompleteTime = SystemClock.elapsedRealtime();
   }
-
+  
   @Override
   public Map<String, String> getExtraMap(OkHttpNetworkFetchState fetchState, int byteSize) {
     Map<String, String> extraMap = new HashMap<>(4);
@@ -147,10 +148,10 @@ public class OkHttpNetworkFetcher extends
     extraMap.put(IMAGE_SIZE, Integer.toString(byteSize));
     return extraMap;
   }
-
+  
   /**
    * Handles exceptions.
-   *
+   * <p>
    * <p> OkHttp notifies callers of cancellations via an IOException. If IOException is caught
    * after request cancellation, then the exception is interpreted as successful cancellation
    * and onCancellation is called. Otherwise onFailure is called.
@@ -162,7 +163,7 @@ public class OkHttpNetworkFetcher extends
       callback.onFailure(e);
     }
   }
-
+  
   private OkHttpClient getOkHttpClient(OkHttpNetworkFetchState state) {
     return mOkHttpClientSupplier.get(state.getContext().getPriority());
   }

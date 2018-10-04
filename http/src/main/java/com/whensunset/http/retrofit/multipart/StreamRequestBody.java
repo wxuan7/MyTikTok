@@ -10,15 +10,15 @@ import okhttp3.RequestBody;
 import okio.BufferedSink;
 
 public abstract class StreamRequestBody extends RequestBody {
-
+  
   private static final int BUFFER_SIZE = 4096;
-
+  
   private final OnProgressListener mProgressListener;
   private long mStart;
   private long mEnd;
   private MediaType mMediaType;
   private Object mObject;
-
+  
   public StreamRequestBody(OnProgressListener progressListener, Object object,
                            long start, long size, MediaType mediaType) {
     mProgressListener = progressListener;
@@ -27,17 +27,17 @@ public abstract class StreamRequestBody extends RequestBody {
     mMediaType = mediaType;
     mObject = object;
   }
-
+  
   @Override
   public long contentLength() throws IOException {
     return mEnd - mStart;
   }
-
+  
   @Override
   public MediaType contentType() {
     return mMediaType;
   }
-
+  
   @Override
   public void writeTo(BufferedSink sink) throws IOException {
     byte[] buffer = new byte[BUFFER_SIZE];
@@ -58,7 +58,7 @@ public abstract class StreamRequestBody extends RequestBody {
       IOUtil.closeQuietly(in);
     }
   }
-
+  
   abstract InputStream getInputStream() throws IOException;
-
+  
 }

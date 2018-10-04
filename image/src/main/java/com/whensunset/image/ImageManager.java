@@ -31,7 +31,8 @@ import java.util.concurrent.Executor;
 import okhttp3.OkHttpClient;
 
 public class ImageManager {
-  private static final String DEBUG_TAG = "DEBUG_TAG"; 
+  private static final String DEBUG_TAG = "DEBUG_TAG";
+  
   public static void initialize(Context context) {
     
     Set<RequestListener> listeners = new HashSet<>();
@@ -43,7 +44,6 @@ public class ImageManager {
               .setRequestListeners(listeners)
               .setCacheKeyFactory(new MytiktokoImageCacheKeyFactory())
               .setSmallImageDiskCacheConfig(
-                  // Small Disk目前仅用于已关注的人的头像, 关注上限为1000人, 按照每张头像10K算(实际低于10K), 10M足够用
                   DiskCacheConfig.newBuilder(context).setMaxCacheSize(10 * ByteConstants.MB)
                       .build())
               .setBitmapMemoryCacheParamsSupplier(new MytiktokBitmapMemoryCacheParamsSupplier(context))
@@ -78,13 +78,13 @@ public class ImageManager {
       //https://github.com/facebook/fresco/commit/7b15ae0ed25834a66dd8d478f473b93381ba2c1b
       //在fresco的github上已经正式将文件头的数组改为我们的形式
       JavaReflectUtil.setStaticField(DefaultImageFormatChecker.class, "HEIF_HEADER_SUFFIXES",
-          new String[] {"heic", "heix", "hevc", "hevx", "mif1", "msf1"});
+          new String[]{"heic", "heix", "hevc", "hevx", "mif1", "msf1"});
     } catch (Throwable e) {
       DebugLogger.e(DEBUG_TAG, "ImageManagerOtherError");
       e.printStackTrace();
     }
   }
-
+  
   static class IsPrefetchEnabledSupplier implements Supplier<Boolean> {
     @Override
     public Boolean get() {
@@ -92,11 +92,11 @@ public class ImageManager {
       return true;
     }
   }
-
+  
   static class MytiktokOkHttpClientSupplier implements OkHttpClientSupplier {
-
+    
     OkHttpClient mHttpClient;
-
+    
     @Override
     public synchronized OkHttpClient get(Priority priority) {
       if (mHttpClient == null) {

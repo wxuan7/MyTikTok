@@ -17,7 +17,7 @@ import com.facebook.imagepipeline.core.ImagePipelineConfig;
  * {@link OkHttpNetworkFetcher}.
  */
 public class OkHttpImagePipelineConfigFactory {
-
+  
   public static ImagePipelineConfig.Builder newBuilder(Context context,
                                                        OkHttpClientSupplier supplier) {
     return ImagePipelineConfig.newBuilder(context)

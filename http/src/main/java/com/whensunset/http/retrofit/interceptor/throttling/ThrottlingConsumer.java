@@ -8,7 +8,7 @@ import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
 
 public class ThrottlingConsumer implements Consumer<Object> {
-
+  
   @Override
   public void accept(@NonNull Object o) throws Exception {
     if (!(o instanceof Response)) {
@@ -25,5 +25,5 @@ public class ThrottlingConsumer implements Consumer<Object> {
     ThrottlingConfigHolder.getDefault().put(url.getPath(),
         new ThrottlingConfig(response.policyExpireMs(), response.nextRequestSleepMs()));
   }
-
+  
 }

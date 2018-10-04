@@ -29,20 +29,20 @@ import okio.Buffer;
  * 将 config 里面的 param 的 body、url 整合到 request 里去
  */
 public class ConfigParamsInterceptor implements Interceptor {
-
+  
   private static final String NAME = "name=\"";
-
+  
   private final RetrofitConfig.Params mConfig;
-
+  
   public ConfigParamsInterceptor(RetrofitConfig.Params config) {
     mConfig = config;
   }
-
+  
   @Override
   public Response intercept(Chain chain) throws IOException {
     Request original = chain.request();
     HttpUrl originalHttpUrl = original.url();
-
+    
     Set<String> queryParameterNames = originalHttpUrl.queryParameterNames();
     // 如果是 get 那么其储存的是 url 上的 param，如果是 post 那么其储存的是 body 中的 param
     Map<String, String> params = new HashMap<>();
@@ -68,7 +68,7 @@ public class ConfigParamsInterceptor implements Interceptor {
         params.putAll(multiParams);
       }
     }
-
+    
     Pair<Map<String, String>, Map<String, String>> pair =
         ParamsUtils.obtainParams(mConfig, params, get);
     Request.Builder builder = new Request.Builder();
@@ -80,23 +80,23 @@ public class ConfigParamsInterceptor implements Interceptor {
             new MultipartBody.Builder(((MultipartBody) original.body()).boundary());
         multipartBuilder.setType(body.type());
         List<MultipartBody.Part> partList = new ArrayList<>(body.parts());
-
+        
         for (MultipartBody.Part part : partList) {
           multipartBuilder.addPart(part.headers(), part.body());
         }
-
+        
         Map<String, String> postParams = pair.second;
         if (postParams != null && !postParams.isEmpty()) {
           for (Map.Entry<String, String> entry : postParams.entrySet()) {
-
+            
             if (multiParams != null && multiParams.containsKey(entry.getKey())) {
               continue;
             }
-
+            
             multipartBuilder.addFormDataPart(entry.getKey(), entry.getValue());
           }
         }
-
+        
         builder.method(original.method(), multipartBuilder.build());
       } else if (original.body() instanceof FormBody
           || original.body() == null
@@ -105,7 +105,7 @@ public class ConfigParamsInterceptor implements Interceptor {
         // 需要处理成 FormBody
         FormBody.Builder formBuilder = new FormBody.Builder();
         Map<String, String> postParams = pair.second;
-
+        
         if (original.body() instanceof FormBody) {
           FormBody originBody = (FormBody) original.body();
           for (int i = 0; i < originBody.size(); i++) {
@@ -118,7 +118,7 @@ public class ConfigParamsInterceptor implements Interceptor {
             }
           }
         }
-
+        
         if (postParams != null) {
           for (Map.Entry<String, String> entry : postParams.entrySet()) {
             formBuilder.add(entry.getKey(), entry.getValue());
@@ -131,20 +131,20 @@ public class ConfigParamsInterceptor implements Interceptor {
     }
     
     // 设置 request 的 head 、url、tag
-  
+    
     Headers lastHeaders = original.headers();
     Map<String, String> headers = mConfig.getHeaders();
     for (Map.Entry<String, String> entry : headers.entrySet()) {
       lastHeaders.newBuilder().add(entry.getKey(), entry.getValue());
     }
     builder.headers(lastHeaders);
-  
+    
     builder.url(buildUrl(originalHttpUrl, pair.first));
     builder.tag(original.tag());
     
     return chain.proceed(builder.build());
   }
-
+  
   private Map<String, String> extractMultipartParams(Request original) throws IOException {
     MultipartBody multipartBody = (MultipartBody) original.body();
     Map<String, String> params = new HashMap<>();
@@ -157,7 +157,7 @@ public class ConfigParamsInterceptor implements Interceptor {
         int index = headerName.indexOf(NAME);
         // 取出来的 key 的名称会有 双引号阔起来，所以这里将双引号去除掉
         String name = headerName.substring(index + NAME.length(), headerName.length() - 1);
-
+        
         // body 是一个 RequestBody 的形式，需要通过 buffer 输出到 Byte[] 数组中转换
         Buffer buffer = new Buffer();
         byte[] content = new byte[(int) part.body().contentLength()];
@@ -169,13 +169,13 @@ public class ConfigParamsInterceptor implements Interceptor {
     }
     return params;
   }
-
+  
   private HttpUrl buildUrl(HttpUrl url, Map<String, String> params) {
     if (params == null || params.isEmpty()) {
       return url;
     }
     HttpUrl.Builder builder = url.newBuilder();
-
+    
     for (Map.Entry<String, String> entry : params.entrySet()) {
       if (url.queryParameter(entry.getKey()) == null) {
         builder.addQueryParameter(entry.getKey(), entry.getValue());

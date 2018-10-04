@@ -10,11 +10,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class JavaReflectUtil {
-
+  
   private final static String LOG_TAG = "JavaReflectUtil";
-
+  
   private final static Map<Class<?>, Class<?>> PRIMITIVE_MAP = new HashMap<Class<?>, Class<?>>();
-
+  
   static {
     PRIMITIVE_MAP.put(Boolean.class, boolean.class);
     PRIMITIVE_MAP.put(Byte.class, byte.class);
@@ -33,17 +33,17 @@ public class JavaReflectUtil {
     PRIMITIVE_MAP.put(long.class, long.class);
     PRIMITIVE_MAP.put(double.class, double.class);
   }
-
+  
   public static class JavaParam<T> {
     public final Class<? extends T> clazz;
     public final T obj;
-
+    
     public JavaParam(Class<? extends T> clazz, T obj) {
       this.clazz = clazz;
       this.obj = obj;
     }
   }
-
+  
   public static <T> T getField(Object targetInstance, String fieldName) {
     try {
       return getFieldOrThrow(targetInstance, fieldName);
@@ -54,7 +54,7 @@ public class JavaReflectUtil {
     }
     return null;
   }
-
+  
   public static <T> T getFieldOrThrow(Object targetInstance, String fieldName)
       throws NoSuchFieldException, IllegalAccessException {
     Class<?> cls = targetInstance.getClass();
@@ -73,7 +73,7 @@ public class JavaReflectUtil {
     f.setAccessible(true);
     return (T) f.get(targetInstance);
   }
-
+  
   public static void setField(Object targetInstance, String fieldName, Object val) {
     try {
       setFieldOrThrow(targetInstance, fieldName, val);
@@ -83,7 +83,7 @@ public class JavaReflectUtil {
       e.printStackTrace();
     }
   }
-
+  
   public static void setStaticField(Class<?> cls, String fieldName, Object val) {
     try {
       Field f = null;
@@ -105,7 +105,7 @@ public class JavaReflectUtil {
       e.printStackTrace();
     }
   }
-
+  
   public static void setFieldOrThrow(Object targetInstance, String fieldName, Object val)
       throws NoSuchFieldException, IllegalAccessException {
     Class<?> cls = targetInstance.getClass();
@@ -123,9 +123,9 @@ public class JavaReflectUtil {
     f.setAccessible(true);
     f.set(targetInstance, val);
   }
-
+  
   public static <T> T callMethod(Object targetInstance, String methodName,
-      Object... args) {
+                                 Object... args) {
     try {
       return callMethodOrThrow(targetInstance, methodName, args);
     } catch (Exception e) {
@@ -134,22 +134,22 @@ public class JavaReflectUtil {
       return null;
     }
   }
-
+  
   @SuppressWarnings("unchecked")
   public static <T> T callMethodOrThrow(Object targetInstance,
-      String methodName, Object... args) throws SecurityException,
-          NoSuchMethodException, IllegalArgumentException,
-          IllegalAccessException, InvocationTargetException {
+                                        String methodName, Object... args) throws SecurityException,
+      NoSuchMethodException, IllegalArgumentException,
+      IllegalAccessException, InvocationTargetException {
     final Class<?> clazz = targetInstance.getClass();
-
+    
     Method method = getDeclaredMethod(clazz, methodName,
         getParameterTypes(args));
     T result = (T) method.invoke(targetInstance, getParameters(args));
     return result;
   }
-
+  
   public static <T> T callStaticMethod(String className, String methodName,
-      Object... args) {
+                                       Object... args) {
     try {
       Class<?> clazz = Class.forName(className);
       return callStaticMethodOrThrow(clazz, methodName, args);
@@ -159,10 +159,10 @@ public class JavaReflectUtil {
       return null;
     }
   }
-
+  
   private static Method getDeclaredMethod(final Class<?> clazz, String name,
-      Class<?>... parameterTypes) throws NoSuchMethodException,
-          SecurityException {
+                                          Class<?>... parameterTypes) throws NoSuchMethodException,
+      SecurityException {
     Method[] methods = clazz.getDeclaredMethods();
     Method method = findMethodByName(methods, name, parameterTypes);
     if (method == null) {
@@ -176,74 +176,74 @@ public class JavaReflectUtil {
     method.setAccessible(true);
     return method;
   }
-
+  
   private static Method findMethodByName(Method[] list, String name,
-      Class<?>[] parameterTypes) {
+                                         Class<?>[] parameterTypes) {
     if (name == null) {
       throw new NullPointerException("Method name must not be null.");
     }
-
+    
     for (Method method : list) {
       if (method.getName().equals(name)
           && compareClassLists(method.getParameterTypes(),
-              parameterTypes)) {
+          parameterTypes)) {
         return method;
       }
     }
     return null;
   }
-
+  
   private static boolean compareClassLists(Class<?>[] a, Class<?>[] b) {
     if (a == null) {
       return (b == null) || (b.length == 0);
     }
-
+    
     if (b == null) {
       return (a.length == 0);
     }
-
+    
     if (a.length != b.length) {
       return false;
     }
-
+    
     for (int i = 0; i < a.length; ++i) {
       // if a[i] and b[i] is not same, return false
       if (!(a[i].isAssignableFrom(b[i])
           || (PRIMITIVE_MAP.containsKey(a[i]) && PRIMITIVE_MAP.get(
-              a[i]).equals(PRIMITIVE_MAP.get(b[i]))))) {
+          a[i]).equals(PRIMITIVE_MAP.get(b[i]))))) {
         return false;
       }
     }
-
+    
     return true;
   }
-
+  
   @SuppressWarnings("unchecked")
   public static <T> T callStaticMethodOrThrow(final String className,
-      String methodName, Object... args) throws SecurityException,
-          NoSuchMethodException, IllegalArgumentException,
-          IllegalAccessException, InvocationTargetException,
-          ClassNotFoundException {
+                                              String methodName, Object... args) throws SecurityException,
+      NoSuchMethodException, IllegalArgumentException,
+      IllegalAccessException, InvocationTargetException,
+      ClassNotFoundException {
     Class<?> clazz = Class.forName(className);
     Method method = getDeclaredMethod(clazz, methodName,
         getParameterTypes(args));
-
+    
     T result = (T) method.invoke(null, getParameters(args));
     return result;
   }
-
+  
   @SuppressWarnings("unchecked")
   public static <T> T callStaticMethodOrThrow(final Class<?> clazz,
-      String methodName, Object... args) throws SecurityException,
-          NoSuchMethodException, IllegalArgumentException,
-          IllegalAccessException, InvocationTargetException {
+                                              String methodName, Object... args) throws SecurityException,
+      NoSuchMethodException, IllegalArgumentException,
+      IllegalAccessException, InvocationTargetException {
     Method method = getDeclaredMethod(clazz, methodName,
         getParameterTypes(args));
-
+    
     T result = (T) method.invoke(null, getParameters(args));
     return result;
   }
-
+  
   public static <T> T newInstance(Class<?> clazz, Object... args) {
     try {
       return newInstanceOrThrow(clazz, args);
@@ -255,7 +255,7 @@ public class JavaReflectUtil {
       return null;
     }
   }
-
+  
   public static <T> T newEmptyInstance(Class<?> clazz) {
     try {
       return newEmptyInstanceOrThrow(clazz);
@@ -267,7 +267,7 @@ public class JavaReflectUtil {
       return null;
     }
   }
-
+  
   public static <T> T newEmptyInstanceOrThrow(Class<?> clazz)
       throws IllegalAccessException, InvocationTargetException,
       InstantiationException, ClassNotFoundException {
@@ -287,7 +287,7 @@ public class JavaReflectUtil {
     }
     return (T) constructor.newInstance(params);
   }
-
+  
   private static Object getDefaultValue(Class<?> clazz) {
     if (int.class.equals(clazz) || Integer.class.equals(clazz)
         || byte.class.equals(clazz) || Byte.class.equals(clazz)
@@ -304,7 +304,7 @@ public class JavaReflectUtil {
       return null;
     }
   }
-
+  
   @SuppressWarnings("unchecked")
   public static <T> T newInstanceOrThrow(Class<?> clazz, Object... args)
       throws SecurityException, NoSuchMethodException,
@@ -314,7 +314,7 @@ public class JavaReflectUtil {
         .getConstructor(getParameterTypes(args));
     return (T) constructor.newInstance(getParameters(args));
   }
-
+  
   public static <T> T newInstance(String className, Object... args) {
     try {
       return newInstanceOrThrow(className, args);
@@ -324,7 +324,7 @@ public class JavaReflectUtil {
       return null;
     }
   }
-
+  
   public static <T> T newInstanceOrThrow(String className, Object... args)
       throws SecurityException, NoSuchMethodException,
       IllegalArgumentException, InstantiationException,
@@ -332,10 +332,10 @@ public class JavaReflectUtil {
       ClassNotFoundException {
     return newInstanceOrThrow(Class.forName(className), getParameters(args));
   }
-
+  
   private static Class<?>[] getParameterTypes(Object... args) {
     Class<?>[] parameterTypes = null;
-
+    
     if (args != null && args.length > 0) {
       parameterTypes = new Class<?>[args.length];
       for (int i = 0; i < args.length; i++) {
@@ -349,10 +349,10 @@ public class JavaReflectUtil {
     }
     return parameterTypes;
   }
-
+  
   private static Object[] getParameters(Object... args) {
     Object[] parameters = null;
-
+    
     if (args != null && args.length > 0) {
       parameters = new Object[args.length];
       for (int i = 0; i < args.length; i++) {

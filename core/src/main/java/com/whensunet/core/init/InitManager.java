@@ -36,12 +36,12 @@ public class InitManager {
   private static final String METHOD_ON_FOREGROUND = "onCurrentActivityForeground";
   private static final String METHOD_ON_ACTIVITY_LOAD_FINISHED_OR_AFTER_CREATE_10S =
       "onMainActivityLoadFinished";
-
+  
   private final Set<InitModule> mTasks = new LinkedHashSet<>();
   private final Map<String, Map<String, Long>> mCosts = new HashMap<>();
   private boolean mCostReported;
   private boolean mActivityLoadFinished;
-
+  
   public InitManager() {
     // Preference是全局使用的, 要先初始化
     mTasks.add(new PreferenceInitModule());
@@ -54,7 +54,7 @@ public class InitManager {
       }
     }
   }
-
+  
   public void onApplicationAttachBaseContext(Context base) {
     for (InitModule task : mTasks) {
       long start = SystemClock.elapsedRealtime();
@@ -67,24 +67,24 @@ public class InitManager {
       logCost(task, METHOD_ON_APPLICATION_ATTACH_BASE_CONTEXT, end - start);
     }
   }
-
+  
   public void onApplicationCreate(Application application) {
     for (InitModule task : mTasks) {
       long start = SystemClock.elapsedRealtime();
       try {
         task.onApplicationCreate(application);
       } catch (Throwable ignored) {
-        DebugLogger.e(TAG,"error", ignored);
+        DebugLogger.e(TAG, "error", ignored);
       }
       long end = SystemClock.elapsedRealtime();
       logCost(task, METHOD_ON_APPLICATION_CREATE, end - start);
     }
   }
-
+  
   public void onMainActivityCreate(Activity activity, Bundle savedInstanceState) {
     mCostReported = false;
     mActivityLoadFinished = false;
-
+    
     for (InitModule task : mTasks) {
       long start = SystemClock.elapsedRealtime();
       try {
@@ -105,7 +105,7 @@ public class InitManager {
       }
     }, MAX_DELAY_ACTIVITY_LOADED);
   }
-
+  
   public void onMainActivityResume(Activity activity) {
     for (InitModule task : mTasks) {
       long start = SystemClock.elapsedRealtime();
@@ -118,7 +118,7 @@ public class InitManager {
       logCost(task, METHOD_ON_ACTIVITY_RESUME, end - start);
     }
   }
-
+  
   public void onMainActivityDestroy(Activity activity) {
     for (InitModule task : mTasks) {
       long start = SystemClock.elapsedRealtime();
@@ -131,7 +131,7 @@ public class InitManager {
       logCost(task, METHOD_ON_ACTIVITY_DESTROY, end - start);
     }
   }
-
+  
   // todo 需要用 类似 eventbus 来在主 Activity 真正加载完成的时候例如 首页的数据都显示出来了 通知这个方法进行调用，可能是 rxbus
   public void onMainActivityLoadFinished() {
     if (mActivityLoadFinished) {
@@ -143,7 +143,7 @@ public class InitManager {
       try {
         task.onMainActivityLoadFinished();
       } catch (Throwable ignored) {
-        DebugLogger.e(TAG,"error", ignored);
+        DebugLogger.e(TAG, "error", ignored);
       }
       long end = SystemClock.elapsedRealtime();
       logCost(task, METHOD_ON_ACTIVITY_LOAD_FINISHED_OR_AFTER_CREATE_10S, end - start);
@@ -159,7 +159,7 @@ public class InitManager {
       try {
         task.onCurrentActivityBackground();
       } catch (Throwable ignored) {
-        DebugLogger.e(TAG , "error", ignored);
+        DebugLogger.e(TAG, "error", ignored);
       }
       long end = SystemClock.elapsedRealtime();
       logCost(task, METHOD_ON_BACKGROUND, end - start);
@@ -179,7 +179,7 @@ public class InitManager {
       logCost(task, METHOD_ON_FOREGROUND, end - start);
     }
   }
-
+  
   private void logCost(InitModule task, String method, long cost) {
     if (mCostReported) {
       return;
@@ -194,7 +194,7 @@ public class InitManager {
     }
     map.put(task.getClass().getSimpleName(), cost);
   }
-
+  
   private void reportCost() {
     if (mCostReported) {
       return;
@@ -202,18 +202,18 @@ public class InitManager {
     for (Map.Entry<String, Map<String, Long>> entry : mCosts.entrySet()) {
       String method = entry.getKey();
       Map<String, Long> map = entry.getValue();
-
+      
       long cost = 0;
       for (Map.Entry<String, Long> longEntry : map.entrySet()) {
         cost += longEntry.getValue();
       }
-
+      
       reportMethodCost(method, cost, map);
     }
     mCosts.clear();
     mCostReported = true;
   }
-
+  
   private void reportMethodCost(String method, long cost, Map<String, Long> map) {
     // todo 一个上报点
   }

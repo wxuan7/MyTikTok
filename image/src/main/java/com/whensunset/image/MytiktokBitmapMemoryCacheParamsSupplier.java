@@ -9,20 +9,20 @@ import com.facebook.common.util.ByteConstants;
 import com.facebook.imagepipeline.cache.MemoryCacheParams;
 
 public class MytiktokBitmapMemoryCacheParamsSupplier implements Supplier<MemoryCacheParams> {
-
+  
   private static final int MAX_CACHE_ENTRIES = 256;
   private static final int MAX_EVICTION_QUEUE_SIZE = Integer.MAX_VALUE;
   private static final int MAX_EVICTION_QUEUE_ENTRIES = Integer.MAX_VALUE;
   private static final int MAX_CACHE_ENTRY_SIZE = Integer.MAX_VALUE;
-
+  
   private final Context mContext;
   private final ActivityManager mActivityManager;
-
+  
   public MytiktokBitmapMemoryCacheParamsSupplier(Context context) {
     mContext = context;
     mActivityManager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
   }
-
+  
   @Override
   public MemoryCacheParams get() {
     return new MemoryCacheParams(
@@ -32,7 +32,7 @@ public class MytiktokBitmapMemoryCacheParamsSupplier implements Supplier<MemoryC
         MAX_EVICTION_QUEUE_ENTRIES,
         MAX_CACHE_ENTRY_SIZE);
   }
-
+  
   private int getMaxCacheSize() {
     final int maxMemory =
         Math.min(mActivityManager.getMemoryClass() * ByteConstants.MB, Integer.MAX_VALUE);
@@ -49,6 +49,6 @@ public class MytiktokBitmapMemoryCacheParamsSupplier implements Supplier<MemoryC
         return 20 * ByteConstants.MB + maxMemory / 10;
       }
     }
-
+    
   }
 }

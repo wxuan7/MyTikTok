@@ -39,7 +39,7 @@ import java.util.concurrent.Executor;
 
 /**
  * A producer that creates video thumbnails.
- *
+ * <p>
  * <p>
  * At present, these thumbnails are created on the java heap rather than being pinned
  * purgeables. This is deemed okay as the thumbnails are only very small.
@@ -47,24 +47,24 @@ import java.util.concurrent.Executor;
 public class MytiktokLocalVideoThumbnailProducer
     implements
     Producer<CloseableReference<CloseableImage>> {
-
+  
   private static final int COMPRESS_QUALITY = 98;
   private static final int THUMBNAIL_DEFAULT_SIZE = 1024;
   private static final int THUMBNAIL_MICRO_THRESHOLD = 96;
-
+  
   @VisibleForTesting
   static final String PRODUCER_NAME = "VideoThumbnailProducer";
   @VisibleForTesting
   static final String CREATED_THUMBNAIL = "createdThumbnail";
-
+  
   private final Executor mExecutor;
   private static final Set<String> sFileWritingPathSet =
       Collections.synchronizedSet(new HashSet<>());
-
+  
   public MytiktokLocalVideoThumbnailProducer(Executor executor) {
     mExecutor = executor;
   }
-
+  
   private static int calculateKind(ImageRequest imageRequest) {
     if (imageRequest.getPreferredWidth() > THUMBNAIL_MICRO_THRESHOLD
         || imageRequest.getPreferredHeight() > THUMBNAIL_MICRO_THRESHOLD) {
@@ -72,7 +72,7 @@ public class MytiktokLocalVideoThumbnailProducer
     }
     return MediaStore.Images.Thumbnails.MICRO_KIND;
   }
-
+  
   private static Bitmap getThumbBitmapByDecode(@NonNull ImageRequest imageRequest) {
     final int requestWidth = imageRequest.getPreferredWidth() > 0
         ? Math.min(imageRequest.getPreferredWidth(), THUMBNAIL_DEFAULT_SIZE)
@@ -91,7 +91,7 @@ public class MytiktokLocalVideoThumbnailProducer
       
       bitmap = BitmapFactory.decodeFile(savedThumbFile.getAbsolutePath(), options);
     }
-
+    
     // 再从视频里面解一个出来
     boolean shouldRewriteFile = false;
     if (bitmap == null) {
@@ -106,7 +106,7 @@ public class MytiktokLocalVideoThumbnailProducer
     if (bitmap == null) {
       return null;
     }
-
+    
     if (!sFileWritingPathSet.contains(savedThumbFile.getAbsolutePath())) {
       sFileWritingPathSet.add(savedThumbFile.getAbsolutePath());
       if (shouldRewriteFile) {
@@ -116,7 +116,7 @@ public class MytiktokLocalVideoThumbnailProducer
     sFileWritingPathSet.remove(savedThumbFile.getAbsolutePath());
     return bitmap;
   }
-
+  
   /**
    * 为加快速度，优先使用系统提供API,系统API获取为空时再使用 BitmapUtil 提供API
    */
@@ -129,12 +129,12 @@ public class MytiktokLocalVideoThumbnailProducer
     }
     return bitmap;
   }
-
+  
   @Override
   public void produceResults(
       final Consumer<CloseableReference<CloseableImage>> consumer,
       final ProducerContext producerContext) {
-
+    
     final ProducerListener listener = producerContext.getListener();
     final String requestId = producerContext.getId();
     final ImageRequest imageRequest = producerContext.getImageRequest();
@@ -144,7 +144,7 @@ public class MytiktokLocalVideoThumbnailProducer
             listener,
             PRODUCER_NAME,
             requestId) {
-
+          
           @Override
           protected CloseableReference<CloseableImage> getResult() {
             Bitmap bitmap = null;
@@ -164,13 +164,13 @@ public class MytiktokLocalVideoThumbnailProducer
                     ImmutableQualityInfo.FULL_QUALITY,
                     0));
           }
-
+          
           @Override
           protected Map<String, String> getExtraMapOnSuccess(
               final CloseableReference<CloseableImage> result) {
             return ImmutableMap.of(CREATED_THUMBNAIL, String.valueOf(result != null));
           }
-
+          
           @Override
           protected void disposeResult(CloseableReference<CloseableImage> result) {
             CloseableReference.closeSafely(result);

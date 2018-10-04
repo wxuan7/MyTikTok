@@ -6,7 +6,7 @@ import okhttp3.Interceptor;
 import okhttp3.Response;
 
 public class ThrottlingInterceptor implements Interceptor {
-
+  
   @Override
   public Response intercept(Chain chain) throws IOException {
     String path = chain.request().url().url().getPath();
@@ -16,7 +16,8 @@ public class ThrottlingInterceptor implements Interceptor {
         && config.mNextRequestSleepMs > 0) {
       try {
         Thread.sleep(config.mNextRequestSleepMs);
-      } catch (Throwable ignore) {}
+      } catch (Throwable ignore) {
+      }
     }
     return chain.proceed(chain.request());
   }

@@ -9,7 +9,7 @@ import com.whensunset.http.retrofit.utils.RetrofitSchedulers;
  * Created by whensunset on 2018/10/4.
  */
 
-public class CaptureApiServiceFactory implements Factory<CaptureApiService>{
+public class CaptureApiServiceFactory implements Factory<CaptureApiService> {
   
   @Override
   public CaptureApiService newInstance() {
