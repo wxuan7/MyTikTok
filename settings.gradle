@@ -1,1 +1,1 @@
-include ':app', ':mvps', ':logutil', ':router', ':push', ':http', ':video', ':camera', ':widget', ':annotation', ':annotation-processing', ':proto-data', ':invoker'
+include ':app', ':mvps', ':logutil', ':router', ':push', ':http', ':video', ':camera', ':widget', ':annotation', ':annotation-processing', ':proto-data', ':invoker', ':common', ':core', ':utils', ':image'

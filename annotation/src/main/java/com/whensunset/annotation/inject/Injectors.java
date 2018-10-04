@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
 
 public class Injectors {
   public static final String INVOKER_ID = "Injectors";
@@ -40,7 +39,6 @@ public class Injectors {
     INJECTOR_MAP.put(clazz, injector);
   }
 
-  @Nonnull
   public static Injector injector(Class clazz) {
     Injector injector = INJECTOR_MAP.get(clazz);
     return (injector == null ? NOOP : injector);

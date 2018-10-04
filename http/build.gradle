@@ -1,5 +1,13 @@
 apply from: rootProject.file('library.gradle')
 
 dependencies {
+    implementation deps.gson
+    implementation deps.retrofit.gson
+    implementation deps.retrofit.runtime
+    implementation deps.retrofit.rxjava2
     implementation deps.rxjava2.rxjava
+    implementation deps.rxjava2.rxandroid
+    implementation deps.retrofit.scalars
+    implementation project(path: ':utils')
+    implementation project(path: ':logutil')
 }

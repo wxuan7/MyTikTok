@@ -1,8 +1,6 @@
 package com.whensunset.logutil.uploadlog.sender;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
@@ -10,6 +8,7 @@ import android.os.Process;
 import com.whensunset.logutil.uploadlog.config.UploadLogConfiguration;
 import com.whensunset.logutil.uploadlog.policy.UploadLogPolicy;
 import com.whensunset.logutil.uploadlog.storage.UploadLogStorage;
+import com.whensunset.utils.NetworkUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -58,7 +57,7 @@ public class UploadLogHandlerImpl implements UploadLogHandler {
     mLogRetentionTime = logConfiguration.getLogRetentionTime();
     mLogSenderHandler.postDelayed(() -> {
       sendLog();
-      if (isNetworkConnected(mContext)) {
+      if (NetworkUtil.isNetworkConnected(mContext)) {
         clearLog();
       }
     }, INIT_DELAY_DURATION);
@@ -80,7 +79,7 @@ public class UploadLogHandlerImpl implements UploadLogHandler {
     mLogSenderHandler.postDelayed(this::sendLog, getUploadInterval());
     
     // 如果当前没有网络链接，则不发送.
-    if (isNetworkConnected(mContext)) {
+    if (NetworkUtil.isNetworkConnected(mContext)) {
       return;
     }
     Map<String, String> params = new HashMap<>();
@@ -107,7 +106,7 @@ public class UploadLogHandlerImpl implements UploadLogHandler {
   private void sendDelayedLog() {
     mDelayedLogSenderHandler.postDelayed(this::sendDelayedLog, getUploadInterval());
     
-    if (!isNetworkConnected(mContext)) {
+    if (!NetworkUtil.isNetworkConnected(mContext)) {
       return;
     }
     Map<String, String> params = new HashMap<>();
@@ -232,18 +231,4 @@ public class UploadLogHandlerImpl implements UploadLogHandler {
     mUploadIntervalMs = Math.max(3000, intervalMs);
   }
   
-  // todo 未来需要完善一个 NetWorkUtil 这个方法放进入
-  private static boolean isNetworkConnected(Context context) {
-    try {
-      ConnectivityManager cm =
-          (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-      if (cm == null) {
-        return false;
-      }
-      NetworkInfo activeNetworkInfo = cm.getActiveNetworkInfo();
-      return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    } catch (Exception e) {
-      return false;
-    }
-  }
 }

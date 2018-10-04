@@ -1,0 +1,20 @@
+apply from: rootProject.file('library.gradle')
+
+repositories {
+    mavenCentral()
+}
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation project(path: ':annotation')
+    implementation project(path: ':common')
+    implementation project(path: ':logutil')
+    implementation project(path: ':http')
+    implementation project(path: ':utils')
+    annotationProcessor project(":annotation-processing")
+
+    implementation deps.retrofit.rxjava2
+    implementation deps.rxjava2.rxjava
+    implementation deps.rxjava2.rxandroid
+    implementation deps.guava_android
+}
+

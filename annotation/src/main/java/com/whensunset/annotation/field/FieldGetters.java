@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
-
 public class FieldGetters {
   public static final String INVOKER_ID = "Injectors";
   
@@ -65,7 +63,6 @@ public class FieldGetters {
     return fieldGetter == null ? null : fieldGetter.init();
   }
   
-  @Nonnull
   public static FieldGetter fieldGetterOrNoop(Class clazz) {
     FieldGetter fieldGetter = getFieldGetter(clazz);
     return (fieldGetter == null ? NOOP : fieldGetter);
@@ -83,7 +80,6 @@ public class FieldGetters {
     return null;
   }
   
-  @Nonnull
   public static FieldGetter superFieldGetterOrNoop(Class clazz) {
     FieldGetter fieldGetter = findSuperFieldGetter(clazz);
     return (fieldGetter == null ? NOOP : fieldGetter);

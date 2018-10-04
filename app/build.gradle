@@ -22,6 +22,10 @@ android {
             }
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -33,10 +37,13 @@ android {
 
 dependencies {
     implementation deps.support.app_compat
-    implementation project(path: ':annotation')
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     implementation project(path: ':mvps')
     implementation deps.butterknife
-    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
+
+    implementation project(path: ':core')
+    implementation project(path: ':annotation')
+
     annotationProcessor deps.butterknife_compiler
     annotationProcessor project(":annotation-processing")
 }
