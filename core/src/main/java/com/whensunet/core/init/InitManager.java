@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 
+import com.whensunet.core.init.module.ImageManagerInitModule;
 import com.whensunet.core.init.module.PreferenceInitModule;
 import com.whensunset.annotation.singleton.Singleton;
 import com.whensunset.logutil.debuglog.DebugLogger;
@@ -45,7 +46,7 @@ public class InitManager {
   public InitManager() {
     // Preference是全局使用的, 要先初始化
     mTasks.add(new PreferenceInitModule());
-    
+    mTasks.add(new ImageManagerInitModule());
     
     Iterator<InitModule> iterator = mTasks.iterator();
     while (iterator.hasNext()) {
