@@ -13,6 +13,10 @@ public class AsyncConsumer<T> implements Consumer<T> {
     mActual = actual;
   }
   
+  public static <T> AsyncConsumer<T> create(Consumer<T> actual) {
+    return new AsyncConsumer<>(actual);
+  }
+  
   @Override
   public void accept(@NonNull final T t) throws Exception {
     RetrofitSchedulers.ASYNC.scheduleDirect(() -> {
@@ -22,9 +26,5 @@ public class AsyncConsumer<T> implements Consumer<T> {
         e.printStackTrace();
       }
     });
-  }
-  
-  public static <T> AsyncConsumer<T> create(Consumer<T> actual) {
-    return new AsyncConsumer<>(actual);
   }
 }

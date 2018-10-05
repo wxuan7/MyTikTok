@@ -18,27 +18,27 @@ public class SingletonClassVisitor implements SingletonFactoryProcessor.ClassVis
       ClassName.get("com.whensunet.core.factoryregister", "SingletonCall");
   private static final AnnotationSpec sInvokeBy =
       Util.invokeBy(SINGLETON_CALL, CodeBlock.of("$T.INVOKER_ID", SINGLETON_CALL));
-
-
+  
+  
   @Override
   public void onClass(Element rootClass, String className, TypeMirror interfaceName,
                       MethodSpec.Builder register) {
     register.addStatement("$T.register($T.class, new $L())", SINGLETON_CALL, interfaceName,
         className);
   }
-
+  
   @Override
   public AnnotationSpec getInvokeBy() {
     return sInvokeBy;
   }
-
+  
   @Override
   public TypeMirror getTypeAsKey(TypeElement typeElement) {
     // 如果没有interface，则当做自己的单例
     TypeMirror typeMirror = Util.getInterface(typeElement);
     return typeMirror == null ? typeElement.asType() : typeMirror;
   }
-
+  
   @Override
   public Class<? extends Annotation> getTarget() {
     return Singleton.class;

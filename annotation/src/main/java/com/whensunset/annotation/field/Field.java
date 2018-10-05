@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface Field {
   String value() default "";
-
+  
   Class asClass() default Object.class;
-
+  
   boolean doAdditionalGet() default false;
 }

@@ -45,6 +45,10 @@ public class DefualtRetrofitConfig implements RetrofitConfig {
     mRetryTimesValid = sApiRetryTimes > 0 && sApiRetryTimes <= 10;
   }
   
+  public static OkHttpClient getClient() {
+    return sApiClient;
+  }
+  
   @Override
   public Scheduler getExecuteScheduler() {
     return mScheduler;
@@ -95,14 +99,9 @@ public class DefualtRetrofitConfig implements RetrofitConfig {
     return sApiClient;
   }
   
-  
   @Override
   public Call<Object> buildCall(Call<Object> call) {
     return call;
-  }
-  
-  public static OkHttpClient getClient() {
-    return sApiClient;
   }
   
   @Override

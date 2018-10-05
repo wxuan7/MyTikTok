@@ -33,90 +33,8 @@ import static android.util.Log.INFO;
  */
 public final class HttpLoggingInterceptor implements Interceptor {
   private static final Charset UTF8 = Charset.forName("UTF-8");
-  
-  public enum Level {
-    /**
-     * No logs.
-     */
-    NONE,
-    /**
-     * Logs request and response lines.
-     * <p>
-     * <p>
-     * Example:
-     * <p>
-     * <pre>
-     * {@code
-     * --> POST /greeting http/1.1 (3-byte body)
-     *
-     * <-- 200 OK (22ms, 6-byte body)
-     * }
-     * </pre>
-     */
-    BASIC,
-    /**
-     * Logs request and response lines and their respective headers.
-     * <p>
-     * <p>
-     * Example:
-     * <p>
-     * <pre>
-     * {@code
-     * --> POST /greeting http/1.1
-     * Host: example.com
-     * Content-Type: plain/text
-     * Content-Length: 3
-     * --> END POST
-     *
-     * <-- 200 OK (22ms)
-     * Content-Type: plain/text
-     * Content-Length: 6
-     * <-- END HTTP
-     * }
-     * </pre>
-     */
-    HEADERS,
-    /**
-     * Logs request and response lines and their respective headers and bodies (if present).
-     * <p>
-     * <p>
-     * Example:
-     * <p>
-     * <pre>
-     * {@code
-     * --> POST /greeting http/1.1
-     * Host: example.com
-     * Content-Type: plain/text
-     * Content-Length: 3
-     *
-     * Hi?
-     * --> END POST
-     *
-     * <-- 200 OK (22ms)
-     * Content-Type: plain/text
-     * Content-Length: 6
-     *
-     * Hello!
-     * <-- END HTTP
-     * }
-     * </pre>
-     */
-    BODY
-  }
-  
-  public interface Logger {
-    void log(String message);
-    
-    /**
-     * A {@link Logger} defaults output appropriate for the current platform.
-     */
-    Logger DEFAULT = new Logger() {
-      @Override
-      public void log(String message) {
-        Platform.get().log(INFO, message, null);
-      }
-    };
-  }
+  private final Logger logger;
+  private volatile Level level = Level.NONE;
   
   public HttpLoggingInterceptor() {
     this(Logger.DEFAULT);
@@ -126,9 +44,33 @@ public final class HttpLoggingInterceptor implements Interceptor {
     this.logger = logger;
   }
   
-  private final Logger logger;
+  /**
+   * Returns true if the body in question probably contains human readable text. Uses a small sample
+   * of code points to detect unicode control characters commonly used in binary file signatures.
+   */
+  static boolean isPlaintext(Buffer buffer) {
+    try {
+      Buffer prefix = new Buffer();
+      long byteCount = buffer.size() < 64 ? buffer.size() : 64;
+      buffer.copyTo(prefix, 0, byteCount);
+      for (int i = 0; i < 16; i++) {
+        if (prefix.exhausted()) {
+          break;
+        }
+        int codePoint = prefix.readUtf8CodePoint();
+        if (Character.isISOControl(codePoint) && !Character.isWhitespace(codePoint)) {
+          return false;
+        }
+      }
+      return true;
+    } catch (EOFException e) {
+      return false; // Truncated UTF-8 sequence.
+    }
+  }
   
-  private volatile Level level = Level.NONE;
+  public Level getLevel() {
+    return level;
+  }
   
   /**
    * Change the level at which this interceptor logs.
@@ -137,10 +79,6 @@ public final class HttpLoggingInterceptor implements Interceptor {
     if (level == null) throw new NullPointerException("level == null. Use Level.NONE instead.");
     this.level = level;
     return this;
-  }
-  
-  public Level getLevel() {
-    return level;
   }
   
   @Override
@@ -273,32 +211,92 @@ public final class HttpLoggingInterceptor implements Interceptor {
     return response;
   }
   
-  /**
-   * Returns true if the body in question probably contains human readable text. Uses a small sample
-   * of code points to detect unicode control characters commonly used in binary file signatures.
-   */
-  static boolean isPlaintext(Buffer buffer) {
-    try {
-      Buffer prefix = new Buffer();
-      long byteCount = buffer.size() < 64 ? buffer.size() : 64;
-      buffer.copyTo(prefix, 0, byteCount);
-      for (int i = 0; i < 16; i++) {
-        if (prefix.exhausted()) {
-          break;
-        }
-        int codePoint = prefix.readUtf8CodePoint();
-        if (Character.isISOControl(codePoint) && !Character.isWhitespace(codePoint)) {
-          return false;
-        }
-      }
-      return true;
-    } catch (EOFException e) {
-      return false; // Truncated UTF-8 sequence.
-    }
-  }
-  
   private boolean bodyEncoded(Headers headers) {
     String contentEncoding = headers.get("Content-Encoding");
     return contentEncoding != null && !contentEncoding.equalsIgnoreCase("identity");
+  }
+  
+  public enum Level {
+    /**
+     * No logs.
+     */
+    NONE,
+    /**
+     * Logs request and response lines.
+     * <p>
+     * <p>
+     * Example:
+     * <p>
+     * <pre>
+     * {@code
+     * --> POST /greeting http/1.1 (3-byte body)
+     *
+     * <-- 200 OK (22ms, 6-byte body)
+     * }
+     * </pre>
+     */
+    BASIC,
+    /**
+     * Logs request and response lines and their respective headers.
+     * <p>
+     * <p>
+     * Example:
+     * <p>
+     * <pre>
+     * {@code
+     * --> POST /greeting http/1.1
+     * Host: example.com
+     * Content-Type: plain/text
+     * Content-Length: 3
+     * --> END POST
+     *
+     * <-- 200 OK (22ms)
+     * Content-Type: plain/text
+     * Content-Length: 6
+     * <-- END HTTP
+     * }
+     * </pre>
+     */
+    HEADERS,
+    /**
+     * Logs request and response lines and their respective headers and bodies (if present).
+     * <p>
+     * <p>
+     * Example:
+     * <p>
+     * <pre>
+     * {@code
+     * --> POST /greeting http/1.1
+     * Host: example.com
+     * Content-Type: plain/text
+     * Content-Length: 3
+     *
+     * Hi?
+     * --> END POST
+     *
+     * <-- 200 OK (22ms)
+     * Content-Type: plain/text
+     * Content-Length: 6
+     *
+     * Hello!
+     * <-- END HTTP
+     * }
+     * </pre>
+     */
+    BODY
+  }
+  
+  public interface Logger {
+    /**
+     * A {@link Logger} defaults output appropriate for the current platform.
+     */
+    Logger DEFAULT = new Logger() {
+      @Override
+      public void log(String message) {
+        Platform.get().log(INFO, message, null);
+      }
+    };
+    
+    void log(String message);
   }
 }

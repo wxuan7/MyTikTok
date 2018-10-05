@@ -10,13 +10,13 @@ public class InvokeMethod implements Serializable {
   public String className;
   @SerializedName("method")
   public String methodName;
-
+  
   @Override
   public boolean equals(Object o) {
     return o instanceof InvokeMethod && className.equals(((InvokeMethod) o).className)
         && methodName.equals(((InvokeMethod) o).methodName);
   }
-
+  
   @Override
   public int hashCode() {
     return className.hashCode();

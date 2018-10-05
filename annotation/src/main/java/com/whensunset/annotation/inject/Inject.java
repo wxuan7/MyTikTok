@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface Inject {
   String value() default "";
-
+  
   boolean acceptNull() default false;
-
+  
   boolean crashNoFound() default true;
 }

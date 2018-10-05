@@ -24,14 +24,13 @@ import static com.whensunset.utils.IOUtil.closeQuietly;
 import static com.whensunset.utils.IOUtil.copyFile;
 
 public class FileLogger {
-  public static File ROOT_DIR = new File("/mnt/sdcard/mytiktok");
   private static final int MSG_ADD = 1;
   private static final int MSG_FLUSH = 2;
   private static final int LOG_CACHE_COUNT = 40; // 最多攒40条log后flush
   private static final long LOG_MAX_LENGTH = 40 * 1024 * 1024; // 文件最大40M
   private static final long TRIGGER_DELAY_DURATION = 40 * 1000; // 40s循环flush
-  
   private static final String LOG_FILE_NAME = "debug.log";
+  public static File ROOT_DIR = new File("/mnt/sdcard/mytiktok");
   private static final String LOG_DIR = new File(ROOT_DIR, ".debug").getAbsolutePath();
   
   final List<String> mLogs;
@@ -43,15 +42,6 @@ public class FileLogger {
     mLoggerHandler = new LoggerHandler(thread.getLooper());
     mLogs = new ArrayList<>();
     mLoggerHandler.sendEmptyMessage(MSG_FLUSH);
-  }
-  
-  public void addLog(String log) {
-    if (TextUtils.isEmpty(log)) {
-      return;
-    }
-    Message message = Message.obtain(mLoggerHandler, MSG_ADD);
-    message.obj = log;
-    message.sendToTarget();
   }
   
   public static void sendLog() {
@@ -117,6 +107,15 @@ public class FileLogger {
       // todo 文件创建失败
     }
     return logFile;
+  }
+  
+  public void addLog(String log) {
+    if (TextUtils.isEmpty(log)) {
+      return;
+    }
+    Message message = Message.obtain(mLoggerHandler, MSG_ADD);
+    message.obj = log;
+    message.sendToTarget();
   }
   
   class LoggerHandler extends Handler {

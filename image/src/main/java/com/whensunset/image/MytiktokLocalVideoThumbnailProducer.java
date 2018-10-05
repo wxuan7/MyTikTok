@@ -48,18 +48,16 @@ public class MytiktokLocalVideoThumbnailProducer
     implements
     Producer<CloseableReference<CloseableImage>> {
   
-  private static final int COMPRESS_QUALITY = 98;
-  private static final int THUMBNAIL_DEFAULT_SIZE = 1024;
-  private static final int THUMBNAIL_MICRO_THRESHOLD = 96;
-  
   @VisibleForTesting
   static final String PRODUCER_NAME = "VideoThumbnailProducer";
   @VisibleForTesting
   static final String CREATED_THUMBNAIL = "createdThumbnail";
-  
-  private final Executor mExecutor;
+  private static final int COMPRESS_QUALITY = 98;
+  private static final int THUMBNAIL_DEFAULT_SIZE = 1024;
+  private static final int THUMBNAIL_MICRO_THRESHOLD = 96;
   private static final Set<String> sFileWritingPathSet =
       Collections.synchronizedSet(new HashSet<>());
+  private final Executor mExecutor;
   
   public MytiktokLocalVideoThumbnailProducer(Executor executor) {
     mExecutor = executor;

@@ -34,7 +34,7 @@ import javax.lang.model.type.TypeMirror;
 public class SingletonFactoryProcessor extends BaseProcessor {
   private final Set<String> mProcessedClasses = new HashSet<>();
   private final List<ClassVisitor> mClassVisitors = Arrays.asList(new SingletonClassVisitor());
-
+  
   @Override
   public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnv) {
     for (ClassVisitor classVisitor : mClassVisitors) {
@@ -44,9 +44,9 @@ public class SingletonFactoryProcessor extends BaseProcessor {
     }
     return false;
   }
-
+  
   private void generateForClass(AnnotationSpec invokeBy,
-      Element rootClass, ClassVisitor visitor) {
+                                Element rootClass, ClassVisitor visitor) {
     if (rootClass == null || rootClass.getKind() != ElementKind.CLASS) {
       return;
     }
@@ -85,15 +85,15 @@ public class SingletonFactoryProcessor extends BaseProcessor {
     // 输出Factory.java文件
     writeClass(pkg, className, factory);
   }
-
+  
   public interface ClassVisitor {
     void onClass(Element rootClass, String className, TypeMirror interfaceName,
                  MethodSpec.Builder register);
-
+    
     AnnotationSpec getInvokeBy();
-
+    
     TypeMirror getTypeAsKey(TypeElement typeElement);
-
+    
     Class<? extends Annotation> getTarget();
   }
 }

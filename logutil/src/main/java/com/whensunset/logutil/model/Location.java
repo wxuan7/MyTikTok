@@ -1,7 +1,7 @@
 package com.whensunset.logutil.model;
 
 public class Location {
-
+  
   public String mAddress;
   public String mCountry;
   public String mProvince;
@@ -9,5 +9,5 @@ public class Location {
   public String mStreet;
   public double mLatitude;
   public double mLongitude;
-
+  
 }

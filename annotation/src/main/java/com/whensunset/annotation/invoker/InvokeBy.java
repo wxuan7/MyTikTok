@@ -9,10 +9,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface InvokeBy {
   Class invokerClass() default InvokeBy.class;
-
+  
   String invokerName() default "";
-
+  
   String methodId();
-
+  
   int priority() default Integer.MAX_VALUE;
 }

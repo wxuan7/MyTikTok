@@ -34,16 +34,6 @@ public class JavaReflectUtil {
     PRIMITIVE_MAP.put(double.class, double.class);
   }
   
-  public static class JavaParam<T> {
-    public final Class<? extends T> clazz;
-    public final T obj;
-    
-    public JavaParam(Class<? extends T> clazz, T obj) {
-      this.clazz = clazz;
-      this.obj = obj;
-    }
-  }
-  
   public static <T> T getField(Object targetInstance, String fieldName) {
     try {
       return getFieldOrThrow(targetInstance, fieldName);
@@ -365,5 +355,15 @@ public class JavaReflectUtil {
       }
     }
     return parameters;
+  }
+  
+  public static class JavaParam<T> {
+    public final Class<? extends T> clazz;
+    public final T obj;
+    
+    public JavaParam(Class<? extends T> clazz, T obj) {
+      this.clazz = clazz;
+      this.obj = obj;
+    }
   }
 }

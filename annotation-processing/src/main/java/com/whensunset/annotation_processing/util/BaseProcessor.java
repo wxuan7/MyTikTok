@@ -18,7 +18,7 @@ public abstract class BaseProcessor extends AbstractProcessor {
   protected Elements mUtils;
   protected Types mTypes;
   protected Messager mMessager;
-
+  
   @Override
   public synchronized void init(ProcessingEnvironment processingEnv) {
     super.init(processingEnv);
@@ -27,7 +27,7 @@ public abstract class BaseProcessor extends AbstractProcessor {
     mTypes = processingEnv.getTypeUtils();
     mMessager = processingEnv.getMessager();
   }
-
+  
   protected void writeClass(String pkg, String name, TypeSpec.Builder type) {
     try {
       Writer writer = mFiler.createSourceFile(pkg + "." + name).openWriter();
@@ -38,7 +38,7 @@ public abstract class BaseProcessor extends AbstractProcessor {
       e.printStackTrace();
     }
   }
-
+  
   protected void writeClass(ClassBuilder builder) {
     writeClass(builder.getPackage(), builder.getClassName(), builder.build());
   }

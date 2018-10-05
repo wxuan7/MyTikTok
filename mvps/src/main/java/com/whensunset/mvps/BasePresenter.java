@@ -41,16 +41,16 @@ public class BasePresenter implements Presenter {
       
       throw new IllegalStateException("Presenter只能被初始化一次!");
     }
-  
+    
     try {
       mRootView = view;
       
       ButterKnife.bind(this, view);
-  
+      
       createChildren();
       
       onCreate();
-    
+      
     } catch (Exception e) {
       isValid = false;
       // TODO 创建失败，之后打log或者埋点
@@ -59,7 +59,7 @@ public class BasePresenter implements Presenter {
   }
   
   private void createChildren() {
-    for (Presenter childPresenter: mChildPresenterList) {
+    for (Presenter childPresenter : mChildPresenterList) {
       childPresenter.create(mRootView);
     }
   }
@@ -77,17 +77,17 @@ public class BasePresenter implements Presenter {
     if (!isInitialized) {
       throw new IllegalStateException("Presenter必须先初始化!");
     }
-  
+    
     if (mInjector == null) {
       mInjector = Injectors.injector(getClass());
     }
     
     checkInjection(callerContext);
-  
+    
     mInjector.reset(this);
-  
+    
     bindChild(callerContext);
-  
+    
     if (callerContext != null) {
       for (Object context : callerContext) {
         mInjector.inject(this, context);
@@ -104,7 +104,7 @@ public class BasePresenter implements Presenter {
       childPresenter.bind(callerContext);
     }
   }
-
+  
   protected void onBind(Object... callerContext) {
   
   }
@@ -114,19 +114,19 @@ public class BasePresenter implements Presenter {
     if (!isValid) {
       return;
     }
-  
+    
     if (!isInitialized) {
       throw new IllegalStateException("Presenter必须先初始化!");
     }
-  
+    
     if (!isBinding) {
-     throw new IllegalStateException("Presenter 必须处于绑定状态才能解绑!");
+      throw new IllegalStateException("Presenter 必须处于绑定状态才能解绑!");
     }
     
     onUnbind();
     
     unbindChild();
-  
+    
   }
   
   protected void onUnbind() {
@@ -144,7 +144,7 @@ public class BasePresenter implements Presenter {
     if (!isValid) {
       return;
     }
-  
+    
     if (!isInitialized) {
       throw new IllegalStateException("Presenter必须先初始化!");
     }
@@ -175,7 +175,7 @@ public class BasePresenter implements Presenter {
   
   @Override
   public Activity getActivity() {
-
+    
     Activity activity = null;
     if (getContext().getClass().getName().contains("com.android.internal.policy.DecorContext")) {
       try {
@@ -184,7 +184,7 @@ public class BasePresenter implements Presenter {
         Object obj = field.get(getContext());
         java.lang.reflect.Method m1 = obj.getClass().getMethod("getContext");
         activity = (Activity) (m1.invoke(obj));
-      
+        
       } catch (Exception e) {
         e.printStackTrace();
       }

@@ -38,24 +38,11 @@ import okhttp3.ResponseBody;
 public class OkHttpNetworkFetcher extends
     BaseNetworkFetcher<OkHttpNetworkFetcher.OkHttpNetworkFetchState> {
   
-  public static class OkHttpNetworkFetchState extends FetchState {
-    public long submitTime;
-    public long responseTime;
-    public long fetchCompleteTime;
-    
-    public OkHttpNetworkFetchState(
-        Consumer<EncodedImage> consumer,
-        ProducerContext producerContext) {
-      super(consumer, producerContext);
-    }
-  }
-  
   private static final String TAG = "OkHttpNetworkFetchProducer";
   private static final String QUEUE_TIME = "queue_time";
   private static final String FETCH_TIME = "fetch_time";
   private static final String TOTAL_TIME = "total_time";
   private static final String IMAGE_SIZE = "image_size";
-  
   private final OkHttpClientSupplier mOkHttpClientSupplier;
   
   public OkHttpNetworkFetcher(OkHttpClientSupplier supplier) {
@@ -166,5 +153,17 @@ public class OkHttpNetworkFetcher extends
   
   private OkHttpClient getOkHttpClient(OkHttpNetworkFetchState state) {
     return mOkHttpClientSupplier.get(state.getContext().getPriority());
+  }
+  
+  public static class OkHttpNetworkFetchState extends FetchState {
+    public long submitTime;
+    public long responseTime;
+    public long fetchCompleteTime;
+    
+    public OkHttpNetworkFetchState(
+        Consumer<EncodedImage> consumer,
+        ProducerContext producerContext) {
+      super(consumer, producerContext);
+    }
   }
 }

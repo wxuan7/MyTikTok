@@ -1,10 +1,11 @@
 package com.whensunset.invoker
 
 import com.google.common.io.ByteStreams
+import javassist.ClassPath
 import javassist.ClassPool
 import javassist.CtClass
 import javassist.CtMethod
-import javassist.ClassPath
+
 import java.util.jar.JarFile
 import java.util.jar.JarOutputStream
 import java.util.zip.ZipEntry
@@ -119,7 +120,7 @@ public class JarModifier {
                 }
             }
         }
-        if(jar != null) {
+        if (jar != null) {
             try {
                 println("invoker:close jar output")
                 jar.close()

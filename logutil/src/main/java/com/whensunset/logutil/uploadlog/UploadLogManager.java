@@ -7,5 +7,5 @@ import com.whensunset.logutil.uploadlog.config.UploadLogConfiguration;
  */
 
 public class UploadLogManager {
-   public static UploadLogConfiguration CONFIGURATION;
+  public static UploadLogConfiguration CONFIGURATION;
 }

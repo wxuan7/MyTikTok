@@ -26,6 +26,9 @@ public final class SortedElement implements Iterable<Map.Entry<TypeElement, List
   private final Map<TypeElement, List<Element>> mClassFieldsMapping = new HashMap<>();
   private final Set<TypeElement> mFieldSortedFlags = new HashSet<>();
   
+  private SortedElement() {
+  }
+  
   public static SortedElement fromRoundEnv(RoundEnvironment roundEnv,
                                            Class<? extends Annotation> annotation) {
     SortedElement sortedElement = new SortedElement();
@@ -42,9 +45,6 @@ public final class SortedElement implements Iterable<Map.Entry<TypeElement, List
       fields.add(field);
     }
     return sortedElement;
-  }
-  
-  private SortedElement() {
   }
   
   @Override

@@ -10,14 +10,14 @@ public abstract class ClassBuilder {
   protected String mClassName;
   protected String mPackage;
   protected TypeSpec.Builder mType;
-
+  
   public final String getClassName() {
     return mClassName;
   }
-
+  
   public final String getPackage() {
     return mPackage;
   }
-
+  
   public abstract TypeSpec.Builder build();
 }

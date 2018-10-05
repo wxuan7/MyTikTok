@@ -23,7 +23,6 @@ import java.util.Set;
  */
 @Singleton
 public class InitManager {
-  long MAX_DELAY_ACTIVITY_LOADED = 10000L;
   private static final String TAG = "INIT_MANAGER";
   private static final long MAX_DELAY_ACTIVITY_DISPLAY = 5000L;
   private static final long MIN_COST_FOR_REPORT = 10; // 10ms以内不记录
@@ -37,9 +36,9 @@ public class InitManager {
   private static final String METHOD_ON_FOREGROUND = "onCurrentActivityForeground";
   private static final String METHOD_ON_ACTIVITY_LOAD_FINISHED_OR_AFTER_CREATE_10S =
       "onMainActivityLoadFinished";
-  
   private final Set<InitModule> mTasks = new LinkedHashSet<>();
   private final Map<String, Map<String, Long>> mCosts = new HashMap<>();
+  long MAX_DELAY_ACTIVITY_LOADED = 10000L;
   private boolean mCostReported;
   private boolean mActivityLoadFinished;
   

@@ -16,18 +16,17 @@ import java.util.Date;
 import java.util.Locale;
 
 public class LocalFileLogService extends Service {
-
-  private FileLogger mFileLogger = new FileLogger();
+  
   public static final String KEY_LOG = "log";
   public static final String KEY_TAG = "tag";
   public static final String KEY_CONTEXT = "context";
-
+  private FileLogger mFileLogger = new FileLogger();
   private StringBuilderHolder mBuilderHolder = new StringBuilderHolder(512);
-
+  
   private Handler mWorkHandler;
-
+  
   private SimpleDateFormat mTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
-
+  
   private LocalFileLogBinder.Stub mBinder = new LocalFileLogBinder.Stub() {
     @Override
     public void log(String tag, String message, String context) throws RemoteException {
@@ -38,29 +37,29 @@ public class LocalFileLogService extends Service {
       });
     }
   };
-
+  
   @Override
   public void onCreate() {
     super.onCreate();
-
+    
     HandlerThread handlerThread = new HandlerThread("LocalFileLogService",
         Process.THREAD_PRIORITY_BACKGROUND);
     handlerThread.start();
     mWorkHandler = new Handler(handlerThread.getLooper());
   }
-
+  
   @Nullable
   @Override
   public IBinder onBind(Intent intent) {
     return mBinder;
   }
-
+  
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
     if (intent == null) {
       return START_STICKY;
     }
-
+    
     mWorkHandler.post(() -> {
       String message = intent.getStringExtra(KEY_LOG);
       String tag = intent.getStringExtra(KEY_TAG);
@@ -71,26 +70,26 @@ public class LocalFileLogService extends Service {
         mFileLogger.addLog(log);
       }
     });
-
+    
     return START_STICKY;
   }
-
+  
   private String buildContent(String tag, String message, String context) {
     StringBuilder builder = mBuilderHolder.get();
     builder.append(mTimeFormat.format(new Date()) + "  ");
     if (!TextUtils.isEmpty(tag)) {
       builder.append(tag + "   ");
     }
-
+    
     if (!TextUtils.isEmpty(message)) {
       builder.append(message + "   ");
     }
-
+    
     if (!TextUtils.isEmpty(context)) {
       builder.append(context);
     }
     builder.append("\n");
-
+    
     return builder.substring(0);
   }
 }
