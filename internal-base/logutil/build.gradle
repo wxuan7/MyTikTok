@@ -5,5 +5,5 @@ dependencies {
     implementation deps.gson
     implementation deps.squareup.okhttp3
     implementation deps.retrofit.runtime
-    implementation project(path: ':utils')
+    implementation project(path: ':internal-base:utils')
 }

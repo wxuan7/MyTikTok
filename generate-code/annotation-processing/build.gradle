@@ -6,7 +6,7 @@ dependencies {
     compile deps.squareup.javapoet
     compile deps.gson
     implementation 'com.google.auto.service:auto-service:1.0-rc2'
-    compile project(":annotation")
+    compile project(":generate-code:annotation")
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     compileOnly files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"

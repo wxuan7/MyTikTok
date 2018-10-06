@@ -1,4 +1,4 @@
-package com.whensunset.common
+package com.whensunet.core.factoryregister
 
 object ClassHelper {
 

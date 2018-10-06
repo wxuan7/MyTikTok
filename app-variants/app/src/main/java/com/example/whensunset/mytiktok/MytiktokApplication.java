@@ -1,6 +1,7 @@
 package com.example.whensunset.mytiktok;
 
 import android.app.Application;
+import android.support.multidex.MultiDex;
 
 import com.whensunset.annotation.field.FieldGetters;
 import com.whensunset.annotation.inject.FieldProviderImpl;
@@ -15,6 +16,7 @@ public class MytiktokApplication extends Application {
   @Override
   public void onCreate() {
     super.onCreate();
+    MultiDex.install(this);
     Injectors.init();
     FieldGetters.init();
     ProviderHolder.setProvider(new FieldProviderImpl());

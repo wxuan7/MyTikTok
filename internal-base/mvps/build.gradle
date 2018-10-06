@@ -2,5 +2,5 @@ apply from: rootProject.file('library.gradle')
 
 dependencies {
     implementation deps.butterknife
-    compileOnly project(':annotation')
+    compileOnly project(':generate-code:annotation')
 }

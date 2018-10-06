@@ -4,7 +4,6 @@ import android.os.Build
 import android.support.annotation.NonNull
 import com.google.common.reflect.Reflection
 import com.whensunset.annotation.singleton.Factory
-import com.whensunset.common.ClassHelper
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 import java.util.*

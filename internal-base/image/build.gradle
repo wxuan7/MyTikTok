@@ -3,8 +3,8 @@ apply from: rootProject.file('library.gradle')
 dependencies {
     implementation deps.rxjava2.rxjava
     implementation deps.facebook.fresco
-    implementation project(path: ':logutil')
-    implementation project(path: ':utils')
-    implementation project(path: ':http')
+    implementation project(path: ':internal-base:logutil')
+    implementation project(path: ':internal-base:utils')
+    implementation project(path: ':internal-base:http')
     implementation deps.squareup.okhttp3
 }

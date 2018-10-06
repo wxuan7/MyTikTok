@@ -8,6 +8,6 @@ dependencies {
     implementation deps.rxjava2.rxjava
     implementation deps.rxjava2.rxandroid
     implementation deps.retrofit.scalars
-    implementation project(path: ':utils')
-    implementation project(path: ':logutil')
+    implementation project(path: ':internal-base:utils')
+    implementation project(path: ':internal-base:logutil')
 }

@@ -15,13 +15,13 @@ repositories {
 }
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-    implementation project(path: ':annotation')
-    implementation project(path: ':common')
-    implementation project(path: ':image')
-    implementation project(path: ':logutil')
-    implementation project(path: ':http')
-    implementation project(path: ':utils')
-    annotationProcessor project(":annotation-processing")
+    implementation project(path: ':generate-code:annotation')
+    implementation project(path: ':internal-base:image')
+    implementation project(path: ':internal-base:logutil')
+    implementation project(path: ':internal-base:http')
+    implementation project(path: ':internal-base:utils')
+    implementation project(path: ':internal-base:proto-data')
+    annotationProcessor project(":generate-code:annotation-processing")
 
     implementation deps.retrofit.rxjava2
     implementation deps.rxjava2.rxjava

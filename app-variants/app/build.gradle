@@ -9,6 +9,7 @@ android {
         applicationId "com.example.whensunset.mytiktok"
         minSdkVersion 15
         targetSdkVersion 26
+        multiDexEnabled true
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -36,14 +37,16 @@ android {
 
 
 dependencies {
+    implementation 'com.android.support:multidex:1.0.3'
     implementation deps.support.app_compat
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
-    implementation project(path: ':mvps')
     implementation deps.butterknife
 
+
+    implementation project(path: ':internal-base:mvps')
     implementation project(path: ':core')
-    implementation project(path: ':annotation')
+    implementation project(path: ':generate-code:annotation')
 
     annotationProcessor deps.butterknife_compiler
-    annotationProcessor project(":annotation-processing")
+    annotationProcessor project(":generate-code:annotation-processing")
 }
