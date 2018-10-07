@@ -7,7 +7,7 @@ import com.whensunet.core.init.InitModule;
 import com.whensunet.core.util.PreferenceUtil;
 import com.whensunset.annotation.preference.PreferenceAdapter;
 import com.whensunset.annotation.preference.PreferenceContext;
-import com.whensunset.http.retrofit.utils.Gsons;
+import com.whensunset.http.utils.Gsons;
 
 import java.lang.reflect.Type;
 

@@ -4,8 +4,8 @@ import com.whensunet.core.factoryregister.SingletonCall;
 import com.whensunet.core.retrofit.service.CaptureApiService;
 import com.whensunet.core.retrofit.service.UserApiService;
 import com.whensunset.annotation.invoker.InvokeBy;
-import com.whensunset.http.retrofit.RetrofitFactory;
-import com.whensunset.http.retrofit.utils.RetrofitSchedulers;
+import com.whensunset.http.RetrofitFactory;
+import com.whensunset.http.utils.RetrofitSchedulers;
 
 /**
  * Created by whensunset on 2018/10/4.
@@ -18,7 +18,7 @@ public class RetrofitServiceCreateCall {
     SingletonCall.register(CaptureApiService.class, new CaptureApiServiceFactory());
     
     SingletonCall.register(UserApiService.class, () -> RetrofitFactory
-        .newBuilder(new DefualtRetrofitConfig(RetrofitSchedulers.NETWORKING))
+        .newBuilder(new DefaultRetrofitConfig(RetrofitSchedulers.NETWORKING))
         .build()
         .create(UserApiService.class));
   }
