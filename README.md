@@ -38,10 +38,10 @@
     + 3.在图1中我们可以看见 repositories 块里面写着好几行代码，每一行都表示一个 Maven 库。有 google 的、有 jcenter 的、最后一个是我本地的 Maven 库。当我们引用一个包的时候，gradle 就会去这些库里面找相应的 Maven 包然后下载下来供项目使用。
 - 4.怎么新建一个本地 Maven 库呢？很简单:
     + 1.将本地某个**空目录路径**设置为仓库根目录，比如我在 mac 下的库根目录就如图1所示。
-    + 2.比如我们需要将 Invoker 这个 module 上传到本地库中，那么就在 module 中新建一个 gradle.properties 文件，如图3，这样在本 module 的 gradle 脚本中就能读取里面的配置
+    + 2.比如我们的项目需要将 generate-code/invoker 这个 module 上传到本地库中，那么就在该 module 中新建一个 gradle.properties 文件，如图3，这样在本 module 的 gradle 脚本中就能读取里面的配置
     + 3.注意 gradle.properties 以及 build.gradle 文件里面引用的路径需要是**你自己设置的本地路径。**
     + 4.我们需要再在 module 的 gradle 文件里面添加一个 maven 插件，然后写一个上传方法 uploadArchives。如图4.
-    + 5.在**Gradle project窗口运行 uploadArchives任务，这样就上传了 Invoker 插件，如图6。**
-- 5.最后将插件的引用和代码库的引用打开，重新 clean build 一下就可以在app module 里面使用插件了。
+    + 5.在**Gradle project窗口运行 uploadArchives任务，这样就上传了 invoker 插件，如图6。**
+- 5.最后将第二步中说到的插件的引用和代码库的引用的注释去掉，重新 clean build 一下就可以在app module 里面使用插件了。
 
 
