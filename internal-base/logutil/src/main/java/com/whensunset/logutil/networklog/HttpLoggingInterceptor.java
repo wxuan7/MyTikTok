@@ -23,13 +23,6 @@ import okio.BufferedSource;
 import static android.util.Log.INFO;
 
 /**
- * An OkHttp interceptor which logs request and response information. Can be applied as an
- * {@linkplain OkHttpClient#interceptors() application interceptor} or as a {@linkplain
- * OkHttpClient#networkInterceptors() network interceptor}.
- * <p>
- * The format of the logs created by
- * this class should not be considered stable and may change slightly between releases. If you need
- * a stable logging format, use your own interceptor.
  */
 public final class HttpLoggingInterceptor implements Interceptor {
   private static final Charset UTF8 = Charset.forName("UTF-8");
@@ -45,8 +38,6 @@ public final class HttpLoggingInterceptor implements Interceptor {
   }
   
   /**
-   * Returns true if the body in question probably contains human readable text. Uses a small sample
-   * of code points to detect unicode control characters commonly used in binary file signatures.
    */
   static boolean isPlaintext(Buffer buffer) {
     try {
@@ -73,7 +64,6 @@ public final class HttpLoggingInterceptor implements Interceptor {
   }
   
   /**
-   * Change the level at which this interceptor logs.
    */
   public HttpLoggingInterceptor setLevel(Level level) {
     if (level == null) throw new NullPointerException("level == null. Use Level.NONE instead.");
@@ -217,78 +207,17 @@ public final class HttpLoggingInterceptor implements Interceptor {
   }
   
   public enum Level {
-    /**
-     * No logs.
-     */
     NONE,
-    /**
-     * Logs request and response lines.
-     * <p>
-     * <p>
-     * Example:
-     * <p>
-     * <pre>
-     * {@code
-     * --> POST /greeting http/1.1 (3-byte body)
-     *
-     * <-- 200 OK (22ms, 6-byte body)
-     * }
-     * </pre>
-     */
+   
     BASIC,
-    /**
-     * Logs request and response lines and their respective headers.
-     * <p>
-     * <p>
-     * Example:
-     * <p>
-     * <pre>
-     * {@code
-     * --> POST /greeting http/1.1
-     * Host: example.com
-     * Content-Type: plain/text
-     * Content-Length: 3
-     * --> END POST
-     *
-     * <-- 200 OK (22ms)
-     * Content-Type: plain/text
-     * Content-Length: 6
-     * <-- END HTTP
-     * }
-     * </pre>
-     */
+    
     HEADERS,
-    /**
-     * Logs request and response lines and their respective headers and bodies (if present).
-     * <p>
-     * <p>
-     * Example:
-     * <p>
-     * <pre>
-     * {@code
-     * --> POST /greeting http/1.1
-     * Host: example.com
-     * Content-Type: plain/text
-     * Content-Length: 3
-     *
-     * Hi?
-     * --> END POST
-     *
-     * <-- 200 OK (22ms)
-     * Content-Type: plain/text
-     * Content-Length: 6
-     *
-     * Hello!
-     * <-- END HTTP
-     * }
-     * </pre>
-     */
+    
     BODY
   }
   
   public interface Logger {
     /**
-     * A {@link Logger} defaults output appropriate for the current platform.
      */
     Logger DEFAULT = new Logger() {
       @Override
