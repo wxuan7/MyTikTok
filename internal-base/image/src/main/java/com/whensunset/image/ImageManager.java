@@ -18,7 +18,6 @@ import com.facebook.imagepipeline.producers.BitmapMemoryCacheKeyMultiplexProduce
 import com.facebook.imagepipeline.producers.BitmapMemoryCacheProducer;
 import com.facebook.imagepipeline.producers.LocalVideoThumbnailProducer;
 import com.facebook.imagepipeline.producers.ThreadHandoffProducer;
-import com.whensunset.http.utils.ConvertToIOExceptionInterceptor;
 import com.whensunset.image.okhttp3.OkHttpClientSupplier;
 import com.whensunset.image.okhttp3.OkHttpImagePipelineConfigFactory;
 import com.whensunset.logutil.debuglog.DebugLogger;
@@ -100,8 +99,7 @@ public class ImageManager {
     @Override
     public synchronized OkHttpClient get(Priority priority) {
       if (mHttpClient == null) {
-        final OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder()
-            .addInterceptor(new ConvertToIOExceptionInterceptor());
+        final OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder();
         mHttpClient = okHttpClientBuilder.build();
       }
       return mHttpClient;
