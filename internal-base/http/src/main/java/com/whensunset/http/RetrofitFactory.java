@@ -47,11 +47,9 @@ public class RetrofitFactory {
     @Override
     public CallAdapter<?, ?> get(Type returnType, Annotation[] annotations, Retrofit retrofit) {
       if (CallAdapter.Factory.getRawType(returnType) != Observable.class) {
-        return null; // Ignore non-Observable types.
+        return null;
       }
       
-      // Look up the next call adapter which would otherwise be used if this one was not present.
-      // noinspection unchecked returnType checked above to be Observable.
       final CallAdapter<Object, Observable<?>> delegate =
           (CallAdapter<Object, Observable<?>>) retrofit.nextCallAdapter(this, returnType,
               annotations);
