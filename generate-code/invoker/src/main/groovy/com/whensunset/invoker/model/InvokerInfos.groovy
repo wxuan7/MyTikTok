@@ -1,4 +1,4 @@
-package com.whensunset.invoker
+package com.whensunset.invoker.model
 
 class InvokerInfos {
     Map<String, File> mClassContainers = new HashMap<>()
