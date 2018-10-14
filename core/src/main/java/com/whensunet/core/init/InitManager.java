@@ -101,7 +101,6 @@ public class InitManager {
     handler.postDelayed(new Runnable() {
       @Override
       public void run() {
-//        EventBus.getDefault().post(new ActivityLoadFinishEvent());
       }
     }, MAX_DELAY_ACTIVITY_LOADED);
   }
