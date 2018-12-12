@@ -1,6 +1,8 @@
 package com.whensunset.invoker
 
 import com.google.common.io.ByteStreams
+import com.whensunset.invoker.model.Invocation
+import com.whensunset.invoker.model.InvokerInfos
 import javassist.ClassPath
 import javassist.ClassPool
 import javassist.CtClass
@@ -10,13 +12,13 @@ import java.util.jar.JarFile
 import java.util.jar.JarOutputStream
 import java.util.zip.ZipEntry
 
-public class JarModifier {
+public class Modifier {
     private ClassPool mPool = new ClassPool(true)
     private InvokerInfos mInfos
     private Map<File, Map<String, Set<Invocation>>> mFile2InvocationMap = new HashMap<>()
     private boolean mIsDebug;
 
-    public JarModifier(boolean debug, InvokerInfos infos) {
+    public Modifier(boolean debug, InvokerInfos infos) {
         mIsDebug = debug
         mInfos = infos
     }

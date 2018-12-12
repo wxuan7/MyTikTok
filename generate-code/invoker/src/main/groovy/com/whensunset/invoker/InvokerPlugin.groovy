@@ -9,7 +9,6 @@ public class InvokerPlugin implements Plugin<Project> {
 
     void apply(Project project) {
         def isApp = project.plugins.hasPlugin(AppPlugin)
-        // 仅处理application合包
         if (isApp) {
             def android = project.extensions.findByType(AppExtension)
             android.registerTransform(new InvokerTransform(project))

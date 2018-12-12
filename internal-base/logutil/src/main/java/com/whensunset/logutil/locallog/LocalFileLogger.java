@@ -20,11 +20,6 @@ public class LocalFileLogger {
   private static LocalFileLogBinder sLogInterface;
   private static StringBuilderHolder sBuilderHolder = new StringBuilderHolder();
   
-  // 是否有任意一项调试日志被打开
-  public static boolean isEnableAnyDebugLog() {
-    return true;
-  }
-  
   // 是否打开了Event类型的调试日志
   public static boolean isEnableDebugLogOfEvent() {
     return true;

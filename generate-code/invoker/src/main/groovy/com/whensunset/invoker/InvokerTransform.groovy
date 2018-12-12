@@ -11,7 +11,7 @@ public class InvokerTransform extends Transform {
     static final Gson GSON = new Gson()
 
     Project mProject
-    private JarScanner mScanner
+    private Scanner mScanner
     private Set<File> mJars = new HashSet<>()
     private Set<File> mClassFiles = new HashSet<>()
 
@@ -53,7 +53,7 @@ public class InvokerTransform extends Transform {
         }
         println("invoker ${System.currentTimeMillis() - start}ms used for copy files")
         start = System.currentTimeMillis()
-        mScanner = new JarScanner(mProject.rootProject.ext.invokerConfig['fileName'])
+        mScanner = new Scanner(mProject.rootProject.ext.invokerConfig['fileName'])
         int round = 0
         boolean finish = false
         while (!finish) {
@@ -69,30 +69,24 @@ public class InvokerTransform extends Transform {
         }
         println("invoker ${System.currentTimeMillis() - start}ms used for scan")
         start = System.currentTimeMillis()
-        new JarModifier(context.getPath().contains('Debug'), mScanner.mInfos).modify()
+        new Modifier(context.getPath().contains('Debug'), mScanner.mInfos).modify()
         println("invoker ${System.currentTimeMillis() - start}ms used for modify")
     }
 
-    // 构造函数，我们将Project保存下来备用
     public InvokerTransform(Project project) {
         mProject = project
     }
 
-    // 设置我们自定义的Transform对应的Task名称
     @Override
     String getName() {
         return "invoker"
     }
 
-    // 指定输入的类型，通过这里的设定，可以指定我们要处理的文件类型
-    //这样确保其他类型的文件不会传入
     @Override
     Set<QualifiedContent.ContentType> getInputTypes() {
-        // 仅处理Jar
         return TransformManager.CONTENT_JARS
     }
 
-    // 指定Transform的作用范围
     @Override
     Set<QualifiedContent.Scope> getScopes() {
         return TransformManager.SCOPE_FULL_PROJECT

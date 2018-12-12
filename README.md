@@ -9,8 +9,6 @@
 
 **文章列表**：
 - [1.从零开始仿写一个抖音App——开始](https://www.jianshu.com/p/e92bd896ac35)
-- [2.从零开始仿写一个抖音App——基本架构图与MVPs](https://www.jianshu.com/p/3867f6cf4e82)
-- [3.从零开始仿写一个抖音App——Apt代码生成技术、gradle插件开发与protocol协议](https://www.jianshu.com/p/f71cd4c91df8)
 - [4.从零开始仿写一个抖音App——日志和埋点以及后端初步架构](https://www.jianshu.com/p/a957098fe9ea)
 - [5.从零开始仿写一个抖音App——app架构更新与网络层定制](https://www.jianshu.com/p/c47eff0c57a7)
 

@@ -1,4 +1,4 @@
-package com.whensunset.invoker;
+package com.whensunset.invoker.model;
 
 import com.google.gson.annotations.SerializedName;
 

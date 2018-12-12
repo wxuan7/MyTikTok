@@ -1,16 +1,18 @@
 package com.whensunset.invoker
 
 import com.google.gson.reflect.TypeToken
+import com.whensunset.invoker.model.Invocation
+import com.whensunset.invoker.model.InvokerInfos
 
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
 
-public class JarScanner {
+public class Scanner {
     InvokerInfos mInfos = new InvokerInfos()
     Set<String> mUnmatchedClasses = new HashSet<>()
     String mFile
 
-    public JarScanner(String file) {
+    public Scanner(String file) {
         mFile = file
     }
 
